@@ -1,17 +1,19 @@
 import {useCallback, useEffect, useRef, useState} from "react"
 import {chzzkNicknameColors} from "./constants"
-import {Chat, ChatCmd} from "./types"
+import {Chat, ChatCmd, CheeseChat} from "./types"
 
 const emojiRegex = /{:([a-zA-Z0-9_]+):}/g
 
-export default function useChzzkChatList(chatChannelId: string, accessToken: string, maxChatLength: number = 50) {
+export default function useChzzkChatList(chatChannelId: string, accessToken: string, maxChatLength: number = 50, maxCheeseChatLength: number = 5) {
     const isBrowserUnloadingRef = useRef<boolean>(false)
     const lastSetTimestampRef = useRef<number>(0)
     const pendingChatListRef = useRef<Chat[]>([])
+    const pendingCheeseChatListRef = useRef<CheeseChat[]>([])
     const [chatList, setChatList] = useState<Chat[]>([])
+    const [cheeseChatList, setCheeseChatList] = useState<CheeseChat[]>([])
     const [webSocketBuster, setWebSocketBuster] = useState<number>(0)
 
-    const convertChat = useCallback((raw: any): Chat => {
+    const convertChat = useCallback((raw: any): {chat: Chat, payAmount: number | undefined} => {
         const profile = JSON.parse(raw['profile'])
         const extras = JSON.parse(raw['extras'])
         const nickname = profile.nickname
@@ -32,17 +34,20 @@ export default function useChzzkChatList(chatChannelId: string, accessToken: str
         const match = message.match(emojiRegex)
 
         return {
-            uid: Math.random().toString(36).substring(2, 12),
-            time: raw['msgTime'] || raw['messageTime'],
-            nickname,
-            badges,
-            color,
-            emojis,
-            message: match
-                ? message.split(emojiRegex).map(
-                    (part, i) => i % 2 == 0 ? {type: "text", text: part} : {type: "emoji", emojiKey: part}
-                )
-                : [{type: "text", text: message}]
+            chat: {
+                uid: Math.random().toString(36).substring(2, 12),
+                time: raw['msgTime'] || raw['messageTime'],
+                nickname,
+                badges,
+                color,
+                emojis,
+                message: match
+                    ? message.split(emojiRegex).map(
+                        (part, i) => i % 2 == 0 ? {type: "text", text: part} : {type: "emoji", emojiKey: part}
+                    )
+                    : [{type: "text", text: message}]
+            },
+            payAmount: extras?.payAmount
         }
     }, [])
 
@@ -114,12 +119,28 @@ export default function useChzzkChatList(chatChannelId: string, accessToken: str
                     }))
                     break
                 case ChatCmd.CHAT:
-                    const chats: Chat[] = json['bdy']
-                        .filter(chat => (chat['msgTypeCode'] || chat['messageTypeCode']) == 1)
-                        .filter(chat => !((chat['msgStatusType'] || chat['messageStatusType']) == "HIDDEN"))
-                        .map(convertChat)
+                case ChatCmd.CHEESE_CHAT:
+                    const chats: {chat: Chat, payAmount: number | undefined}[] =
+                        json['bdy']
+                            .filter(chat => (chat['msgStatusType'] || chat['messageStatusType']) !== "HIDDEN")
+                            .filter(chat => {
+                                const messageTypeCode = chat['msgTypeCode'] || chat['messageTypeCode']
+                                return messageTypeCode === 1 || messageTypeCode === 10
+                            })
+                            .map(convertChat)
 
-                    pendingChatListRef.current = [...pendingChatListRef.current, ...chats].slice(-1 *  maxChatLength)
+                    const chatList = chats
+                        .filter(({payAmount}) => payAmount == null)
+                        .map(({chat}) => chat)
+
+                    pendingChatListRef.current = [...pendingChatListRef.current, ...chatList].slice(-1 * maxChatLength)
+
+                    const cheeseChatList: CheeseChat[] = chats
+                        .filter(({payAmount}) => payAmount != null)
+                        .map(({chat, payAmount}) => ({...chat, payAmount}))
+
+                    pendingCheeseChatListRef.current = [...pendingCheeseChatListRef.current, ...cheeseChatList].slice(-1 * maxCheeseChatLength)
+
                     break
             }
 
@@ -135,7 +156,7 @@ export default function useChzzkChatList(chatChannelId: string, accessToken: str
             worker.terminate()
             ws.close()
         }
-    }, [accessToken, chatChannelId, convertChat, maxChatLength])
+    }, [accessToken, chatChannelId, convertChat, maxChatLength, maxCheeseChatLength])
 
     useEffect(() => {
         return connectChzzk()
@@ -167,13 +188,30 @@ export default function useChzzkChatList(chatChannelId: string, accessToken: str
                     })
                 }
             }
+            if (pendingCheeseChatListRef.current.length > 0) {
+                if (new Date().getTime() - lastSetTimestampRef.current > 1000) {
+                    setCheeseChatList((prevCheeseChatList) => {
+                        const newCheeseChatList = [...prevCheeseChatList, ...pendingCheeseChatListRef.current].slice(-1 * maxCheeseChatLength)
+                        pendingCheeseChatListRef.current = []
+                        return newCheeseChatList
+                    })
+                } else {
+                    setCheeseChatList((prevCheeseChatList) => {
+                        const newCheeseChatList = [...prevCheeseChatList, pendingCheeseChatListRef.current.shift()]
+                        if (newCheeseChatList.length > maxCheeseChatLength) {
+                            newCheeseChatList.shift()
+                        }
+                        return newCheeseChatList
+                    })
+                }
+            }
             lastSetTimestampRef.current = new Date().getTime()
         }, 75)
         return () => {
             clearInterval(interval)
             lastSetTimestampRef.current = 0
         }
-    }, [maxChatLength])
+    }, [maxChatLength, maxCheeseChatLength])
 
-    return chatList
+    return {chatList, cheeseChatList}
 }

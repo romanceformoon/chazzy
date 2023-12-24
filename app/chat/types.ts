@@ -24,5 +24,10 @@ export enum ChatCmd {
     PING = 0,
     PONG = 10000,
     CONNECT = 100,
-    CHAT = 93101
+    CHAT = 93101,
+    CHEESE_CHAT = 93102
+}
+
+export interface CheeseChat extends Chat {
+    payAmount: number;
 }
