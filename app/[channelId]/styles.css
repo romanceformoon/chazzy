@@ -1,0 +1,13 @@
+:root {
+    --font-size: 1em;
+}
+
+body {
+    background-color: rgb(20, 21, 23);
+}
+
+@keyframes fadeout {
+    0% {bottom: 30px; opacity: 1;}
+    90% {bottom: 30px; opacity: 1;}
+    100% {bottom: 0; opacity: 0.35;}
+}

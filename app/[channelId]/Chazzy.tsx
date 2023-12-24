@@ -1,0 +1,74 @@
+"use client"
+
+import {ReactElement, useCallback, useEffect, useMemo, useRef} from "react"
+import useChzzkChatList from "../chat/useChzzkChatList"
+import useTwitchChatList from "../chat/useTwitchChatList"
+import ChatRow from "./ChatRow"
+import CheeseChatRow from "./CheeseChatRow"
+import EmptyCheeseChatRow from "./EmptyCheeseChatRow"
+import "./styles.css"
+
+export interface ChazzyProps {
+    chzzkChatChannelId: string;
+    chzzkAccessToken: string;
+    twitchChatChannelId: string;
+}
+
+export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChatChannelId}: ChazzyProps): ReactElement {
+    const isAutoScrollEnabledRef = useRef<boolean>(true)
+    const scrollRef = useRef<HTMLDivElement>(null)
+    const endOfScrollRef = useRef<HTMLDivElement>(null)
+    const {chatList: chzzkChatList, cheeseChatList} = useChzzkChatList(chzzkChatChannelId, chzzkAccessToken, 500, 5)
+    const twitchChatList = useTwitchChatList(twitchChatChannelId, 500)
+
+    const chatList = useMemo(() => {
+        return [...chzzkChatList, ...twitchChatList].sort((a, b) => a.time - b.time)
+    }, [chzzkChatList, twitchChatList])
+
+    useEffect(() => {
+        if (isAutoScrollEnabledRef.current && endOfScrollRef.current != null) {
+            endOfScrollRef.current.scrollIntoView();
+        }
+    }, [chatList])
+
+    const handleScroll = useCallback(() => {
+        if (scrollRef.current == null) return
+        isAutoScrollEnabledRef.current =
+            scrollRef.current.scrollHeight <= scrollRef.current.scrollTop + scrollRef.current.clientHeight + 120
+    }, []);
+
+    const reversedCheeseChatList = useMemo(() => {
+        const copied = [...cheeseChatList]
+        copied.reverse()
+        return copied
+    }, [cheeseChatList])
+
+    return <div style={{display: "flex", flexDirection: "row", height: "calc(100vh - 16px)", gap: "8px", padding: "8px"}}>
+        <div
+            ref={(ref) => {
+                if (ref == null) return
+                if (scrollRef.current != null) {
+                    scrollRef.current.removeEventListener("wheel", handleScroll)
+                    scrollRef.current.removeEventListener("touchmove", handleScroll)
+                }
+                ref.addEventListener("wheel", handleScroll)
+                ref.addEventListener("touchmove", handleScroll)
+                scrollRef.current = ref
+            }}
+            style={{flex: 2, height: "100%", overflowY: "scroll"}}
+        >
+            {chatList.map((chat) => (
+                <ChatRow key={chat.uid} {...chat} />
+            ))}
+            <div ref={endOfScrollRef} />
+        </div>
+        <div style={{display: "flex", flexDirection: "column", flex: 1, height: "100%", overflowY: "scroll", gap: "8px"}}>
+            {reversedCheeseChatList.length === 0
+                ? <EmptyCheeseChatRow />
+                : reversedCheeseChatList.map((cheeseChat) => (
+                    <CheeseChatRow key={cheeseChat.uid} {...cheeseChat} />
+                )
+            )}
+        </div>
+    </div>
+}

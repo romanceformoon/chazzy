@@ -1,6 +1,6 @@
 import {Nanum_Gothic} from 'next/font/google'
 
-const nanumGothic = Nanum_Gothic({weight: '700', subsets: ['latin']})
+const nanumGothic = Nanum_Gothic({weight: ['400', '700'], subsets: ['latin']})
 
 export default function RootLayout({children}) {
     return (
