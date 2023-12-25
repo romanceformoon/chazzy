@@ -6,6 +6,29 @@ body {
     background-color: rgb(20, 21, 23);
 }
 
+div#chazzy-container {
+    height: calc(100vh - 16px);
+    height: calc(100dvh - 16px);
+    flex-direction: row;
+}
+
+div#cheese-chat-list-container {
+    flex: 1;
+    height: 100%;
+}
+
+@media (max-width: 1023px) {
+    div#chazzy-container {
+        flex-direction: column-reverse;
+    }
+
+    div#cheese-chat-list-container {
+        flex: unset;
+        height: unset;
+        max-height: 25%;
+    }
+}
+
 @keyframes fadeout {
     0% {bottom: 30px; opacity: 1;}
     90% {bottom: 30px; opacity: 1;}

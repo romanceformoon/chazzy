@@ -43,7 +43,7 @@ export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChat
         return copied
     }, [cheeseChatList])
 
-    return <div style={{display: "flex", flexDirection: "row", height: "calc(100vh - 16px)", gap: "8px", padding: "8px"}}>
+    return <div id="chazzy-container" style={{display: "flex", gap: "8px", padding: "8px"}}>
         <div
             ref={(ref) => {
                 if (ref == null) return
@@ -62,7 +62,15 @@ export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChat
             ))}
             <div ref={endOfScrollRef} />
         </div>
-        <div style={{display: "flex", flexDirection: "column", flex: 1, height: "100%", overflowY: "scroll", gap: "8px"}}>
+        <div
+            id="cheese-chat-list-container"
+            style={{
+                display: "flex",
+                flexDirection: "column",
+                overflowY: "scroll",
+                gap: "8px"
+            }}
+        >
             {reversedCheeseChatList.length === 0
                 ? <EmptyCheeseChatRow />
                 : reversedCheeseChatList.map((cheeseChat) => (
