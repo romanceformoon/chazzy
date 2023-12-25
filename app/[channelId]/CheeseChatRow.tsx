@@ -45,7 +45,7 @@ function CheeseChatRow(props: CheeseChat) {
                     </Fragment>
                 ))}
             </div>
-            <div style={{textAlign: "right"}}>[{timestamp}]</div>
+            <div style={{textAlign: "right", fontWeight: 100}}>[{timestamp}]</div>
         </div>
     )
 }

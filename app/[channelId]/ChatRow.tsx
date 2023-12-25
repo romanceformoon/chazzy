@@ -10,7 +10,7 @@ function ChatRow(props: Chat) {
 
     return (
         <div style={{lineHeight: "calc(var(--font-size) * 1.5)", wordWrap: "break-word", fontWeight: 400, color: "white"}}>
-            <span style={{paddingRight: "8px"}}>{timestamp}</span>
+            <span style={{paddingRight: "8px", fontWeight: 100}}>{timestamp}</span>
             {badges.length > 0 && badges.map((src, i) => (
                 <img key={i} alt="" src={src} style={{height: "var(--font-size)", paddingTop: "calc(var(--font-size) * 0.25)", paddingRight: "8px", verticalAlign: "top"}} />
             ))}
