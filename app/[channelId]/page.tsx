@@ -2,6 +2,8 @@ import {ReactElement} from "react"
 import {notFound} from "next/navigation"
 import Chazzy from "./Chazzy"
 
+export const dynamic = "force-dynamic"
+
 export default async function ChazzyPage({params: {channelId}}): Promise<ReactElement> {
     const {signal} = new AbortController()
     const [chzzkChannelId, twitchChannelId] = channelId.split("-")
