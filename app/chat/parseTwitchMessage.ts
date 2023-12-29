@@ -182,6 +182,7 @@ function parseCommand(rawCommandComponent) {
         case 'PART':
         case 'NOTICE':
         case 'CLEARCHAT':
+        case 'CLEARMSG':
         case 'HOSTTARGET':
         case 'PRIVMSG':
             parsedCommand = {

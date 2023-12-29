@@ -78,6 +78,23 @@ export default function useTwitchChatList(chatChannelId: string, maxChatLength: 
                             convertChat(parsedMessage)
                         ].slice(-1 *  maxChatLength)
                         break;
+                    case 'CLEARCHAT':
+                        if (parsedMessage.tags["target-user-id"] == null) break;
+                        pendingChatListRef.current = pendingChatListRef.current.filter(
+                            (chat) => chat.userId !== parsedMessage.tags["target-user-id"]
+                        )
+                        setChatList((prevChatList) => prevChatList.filter(
+                            (chat) => chat.userId !== parsedMessage.tags["target-user-id"]
+                        ))
+                        break;
+                    case 'CLEARMSG':
+                        pendingChatListRef.current = pendingChatListRef.current.filter(
+                            (chat) => chat.uid !== parsedMessage.tags["target-msg-id"]
+                        )
+                        setChatList((prevChatList) => prevChatList.filter(
+                            (chat) => chat.uid !== parsedMessage.tags["target-msg-id"]
+                        ))
+                        break;
                     case 'PING':
                         ws.send('PONG ' + parsedMessage.parameters);
                         break;
