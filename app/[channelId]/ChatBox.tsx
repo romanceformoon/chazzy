@@ -3,7 +3,7 @@
 import {useCallback, useEffect} from "react"
 import {useSearchParams} from "next/navigation"
 import {clsx} from "clsx"
-import useChatList from "../chat/useChatList"
+import useChzzkChatList from "../chat/useChzzkChatList"
 import ChatRow from "./ChatRow"
 import useNotice from "@/src/hooks/use-notice"
 
@@ -11,7 +11,7 @@ export default function ChatBox({chatChannelId, accessToken}) {
     const searchParams = useSearchParams()
     const small = searchParams.has("small")
 
-    const chatList = useChatList(chatChannelId, accessToken)
+    const chatList = useChzzkChatList(chatChannelId, accessToken)
 
     const handleObsStreamingStarted = useCallback(() => {
         window.location.reload()

@@ -1,8 +1,10 @@
 import {useCallback, useEffect, useRef, useState} from "react"
-import {nicknameColors} from "./constants"
+import {chzzkNicknameColors} from "./constants"
 import {Chat, ChatCmd} from "./types"
 
-export default function useChatList(chatChannelId: string, accessToken: string, maxChatLength: number = 50) {
+const emojiRegex = /{:([a-zA-Z0-9_]+):}/g
+
+export default function useChzzkChatList(chatChannelId: string, accessToken: string, maxChatLength: number = 50) {
     const isBrowserUnloadingRef = useRef<boolean>(false)
     const lastSetTimestampRef = useRef<number>(0)
     const pendingChatListRef = useRef<Chat[]>([])
@@ -19,11 +21,16 @@ export default function useChatList(chatChannelId: string, accessToken: string, 
             profile.activityBadges?.filter(badge => badge.activated)?.map(badge => badge.imageUrl) ?? []
         ).filter(badge => badge != null)
         const channelId = raw["cid"] || raw["channelId"]
-        const color = profile.title?.color ?? (profile.userIdHash + channelId).split("")
-            .map(c => c.charCodeAt(0))
-            .reduce((a, b) => a + b, 0) % nicknameColors.length
+        const color = profile.title?.color ?? chzzkNicknameColors[
+            (profile.userIdHash + channelId)
+                .split("")
+                .map(c => c.charCodeAt(0))
+                .reduce((a, b) => a + b, 0) % chzzkNicknameColors.length
+        ]
         const emojis = extras?.emojis || {}
         const message = raw['msg'] || raw['content'] || ''
+        const match = message.match(emojiRegex)
+
         return {
             uid: Math.random().toString(36).substring(2, 12),
             time: raw['msgTime'] || raw['messageTime'],
@@ -31,7 +38,11 @@ export default function useChatList(chatChannelId: string, accessToken: string, 
             badges,
             color,
             emojis,
-            message
+            message: match
+                ? message.split(emojiRegex).map(
+                    (part, i) => i % 2 == 0 ? {type: "text", text: part} : {type: "emoji", emojiKey: part}
+                )
+                : [{type: "text", text: message}]
         }
     }, [])
 
