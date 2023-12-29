@@ -81,12 +81,6 @@ export default function useChzzkChatList(chatChannelId: string, accessToken: str
             }
         }
 
-        const defaults = {
-            cid: chatChannelId,
-            svcid: "game",
-            ver: "2"
-        }
-
         ws.onopen = () => {
             ws.send(JSON.stringify({
                 bdy: {
@@ -97,7 +91,9 @@ export default function useChzzkChatList(chatChannelId: string, accessToken: str
                 },
                 cmd: ChatCmd.CONNECT,
                 tid: 1,
-                ...defaults
+                cid: chatChannelId,
+                svcid: "game",
+                ver: "2"
             }))
         }
 
@@ -117,30 +113,13 @@ export default function useChzzkChatList(chatChannelId: string, accessToken: str
                         cmd: ChatCmd.PONG,
                     }))
                     break
-                case ChatCmd.CONNECTED:
-                    const sid = json.bdy.sid
-                    ws.send(JSON.stringify({
-                        bdy: {recentMessageCount: maxChatLength},
-                        cmd: ChatCmd.REQUEST_RECENT_CHAT,
-                        sid,
-                        tid: 2,
-                        ...defaults
-                    }))
-                    break
-                case ChatCmd.RECENT_CHAT:
                 case ChatCmd.CHAT:
-                    const isRecent = json.cmd == ChatCmd.RECENT_CHAT
-                    const chats: Chat[] = (isRecent ? json['bdy']['messageList'] : json['bdy'])
+                    const chats: Chat[] = json['bdy']
                         .filter(chat => (chat['msgTypeCode'] || chat['messageTypeCode']) == 1)
                         .filter(chat => !((chat['msgStatusType'] || chat['messageStatusType']) == "HIDDEN"))
                         .map(convertChat)
 
-                    if (isRecent) {
-                        pendingChatListRef.current = []
-                        setChatList(chats)
-                    } else {
-                        pendingChatListRef.current = [...pendingChatListRef.current, ...chats].slice(-1 *  maxChatLength)
-                    }
+                    pendingChatListRef.current = [...pendingChatListRef.current, ...chats].slice(-1 *  maxChatLength)
                     break
             }
 
