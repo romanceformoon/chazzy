@@ -14,7 +14,7 @@ function ChatRow(props: Chat) {
             {badges.length > 0 && badges.map((src, i) => (
                 <img key={i} alt="" src={src} style={{height: "var(--font-size)", paddingTop: "calc(var(--font-size) * 0.25)", paddingRight: "8px", verticalAlign: "top"}} />
             ))}
-            <span style={{color: color, paddingRight: "8px"}}>{nickname}:</span>
+            <span style={{color: color, paddingRight: "8px", fontWeight: 700}}>{nickname}:</span>
             <span>
                 {message.map((part, i) => (
                     <Fragment key={i}>
