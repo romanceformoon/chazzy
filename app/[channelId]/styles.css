@@ -6,6 +6,10 @@ body {
     background-color: rgb(20, 21, 23);
 }
 
+div#chat-list-container > div:not(:first-of-type) {
+    margin-top: 2px
+}
+
 div#chazzy-container {
     height: calc(100vh - 16px);
     height: calc(100dvh - 16px);

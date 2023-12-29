@@ -46,6 +46,7 @@ export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChat
 
     return <div id="chazzy-container" style={{display: "flex", gap: "8px", padding: "8px"}}>
         <div
+            id="chat-list-container"
             ref={(ref) => {
                 if (ref == null) return
                 if (scrollRef.current != null) {
