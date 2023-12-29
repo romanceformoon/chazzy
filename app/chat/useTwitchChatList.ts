@@ -49,6 +49,35 @@ export default function useTwitchChatList(chatChannelId: string, badges: Record<
     const connectTwitch = useCallback(() => {
         const ws = new WebSocket("wss://irc-ws.chat.twitch.tv")
 
+        const worker = new Worker(
+            URL.createObjectURL(new Blob([`
+                let timeout = null
+
+                onmessage = (e) => {
+                    if (e.data === "startPingTimer") {
+                        if (timeout != null) {
+                            clearTimeout(timeout)
+                        }
+                        timeout = setTimeout(function reservePing() {
+                            postMessage("ping")
+                            timeout = setTimeout(reservePing, 20000)
+                        }, 20000)
+                    }
+                    if (e.data === "stop") {
+                        if (timeout != null) {
+                            clearTimeout(timeout)
+                        }
+                    }
+                }
+            `], {type: "application/javascript"}))
+        )
+
+        worker.onmessage = (e) => {
+            if (e.data === "ping") {
+                ws.send('PING');
+            }
+        }
+
         ws.onopen = () => {
             ws.send("CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands")
             ws.send("PASS SCHMOOPIIE")
@@ -95,16 +124,24 @@ export default function useTwitchChatList(chatChannelId: string, badges: Record<
                         ))
                         break;
                     case 'PING':
-                        ws.send('PONG ' + parsedMessage.parameters);
+                        ws.send('PONG');
                         break;
                     case '001':
                         ws.send(`JOIN #${chatChannelId}`);
                         break;
                 }
+
+                if (parsedMessage.command.command !== "PONG") {
+                    worker.postMessage("startPingTimer")
+                }
             })
         }
 
+        worker.postMessage("startPingTimer")
+
         return () => {
+            worker.postMessage("stop")
+            worker.terminate()
             ws.close()
         }
     }, [chatChannelId, convertChat, maxChatLength])
