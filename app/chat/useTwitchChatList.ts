@@ -31,6 +31,7 @@ export default function useTwitchChatList(chatChannelId: string, maxChatLength: 
         return {
             uid: tags["id"],
             time: parseInt(tags["tmi-sent-ts"]),
+            userId: tags["user-id"],
             nickname,
             badges,
             color,

@@ -13,6 +13,7 @@ export type MessagePart = TextMessagePart | EmojiMessagePart
 export interface Chat {
     uid: string;
     time: number;
+    userId: string;
     nickname: string;
     badges: string[];
     color: string;

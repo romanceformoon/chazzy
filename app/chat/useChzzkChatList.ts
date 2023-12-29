@@ -37,6 +37,7 @@ export default function useChzzkChatList(chatChannelId: string, accessToken: str
             chat: {
                 uid: Math.random().toString(36).substring(2, 12),
                 time: raw['msgTime'] || raw['messageTime'],
+                userId: profile.userIdHash,
                 nickname,
                 badges,
                 color,
