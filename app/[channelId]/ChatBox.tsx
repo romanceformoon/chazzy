@@ -1,17 +1,23 @@
 "use client"
 
-import {useCallback, useEffect} from "react"
+import {useCallback, useEffect, useMemo} from "react"
 import {useSearchParams} from "next/navigation"
 import {clsx} from "clsx"
 import useChzzkChatList from "../chat/useChzzkChatList"
+import useTwitchChatList from "../chat/useTwitchChatList"
 import ChatRow from "./ChatRow"
 import useNotice from "@/src/hooks/use-notice"
 
-export default function ChatBox({chatChannelId, accessToken}) {
+export default function ChatBox({chzzkChatChannelId, chzzkAccessToken, twitchChatChannelId}) {
     const searchParams = useSearchParams()
     const small = searchParams.has("small")
 
-    const chatList = useChzzkChatList(chatChannelId, accessToken)
+    const chzzkChatList = useChzzkChatList(chzzkChatChannelId, chzzkAccessToken)
+    const twitchChatList = useTwitchChatList(twitchChatChannelId)
+
+    const chatList = useMemo(() => {
+        return [...chzzkChatList, ...twitchChatList].sort((a, b) => a.time - b.time)
+    }, [chzzkChatList, twitchChatList])
 
     const handleObsStreamingStarted = useCallback(() => {
         window.location.reload()

@@ -11,7 +11,8 @@ export default function Home() {
             </h3>
             <p>
                 두로님 치지직 주소: https://chzzk.naver.com/6e06f5e1907f17eff543abd06cb62891<br/>
-                오버레이 주소: https://chzzk-overlay.vercel.app/6e06f5e1907f17eff543abd06cb62891
+                두로님 Twitch 주소: https://www.twitch.tv/nokduro<br/>
+                오버레이 주소: https://chzzk-overlay.vercel.app/6e06f5e1907f17eff543abd06cb62891-nokduro
             </p>
             <p>
                 추가로, 오버레이 주소 뒤에 <code>?small</code> 을 붙이면 채팅 간격이 넓어집니다.
