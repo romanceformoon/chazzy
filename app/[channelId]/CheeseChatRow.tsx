@@ -39,7 +39,7 @@ function CheeseChatRow(props: CheeseChat) {
                             ? part.text
                             : (
                                 <span style={{position: "relative", padding: "1px"}}>
-                                    <img alt={part.emojiKey} src={emojis[part.emojiKey]} style={{height: "var(--font-size)", paddingTop: "calc(var(--font-size) * 0.125)", verticalAlign: "top"}}/>
+                                    <img alt={part.emojiKey} src={emojis[part.emojiKey]} style={{height: "calc(var(--font-size) * 1.25)", verticalAlign: "top"}}/>
                                 </span>
                             )}
                     </Fragment>
