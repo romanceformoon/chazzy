@@ -5,3 +5,8 @@ export const chzzkNicknameColors = [
     "#628DCC", "#7994D0", "#81A1CA", "#ADD2DE", "#80BDD3", "#83C5D6", "#8BC8CB", "#91CBC6", "#83C3BB", "#7DBFB2",
     "#AAD6C2", "#84C194", "#B3DBB4", "#92C896", "#94C994", "#9FCE8E", "#A6D293", "#ABD373", "#BFDE73", "#CCE57D"
 ]
+
+export const twitchNicknameColors = [
+    "#FF0000", "#0000FF", "#008000", "#B22222", "#FF7F50", "#99CD32", "#FF4400", "#2E8B56", "#DAA520", "#D2691E",
+    "#5F9EA0", "#1E8FFF", "#FF69B4", "#8A2BE2", "#00FF80"
+]
