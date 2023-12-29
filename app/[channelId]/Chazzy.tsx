@@ -12,14 +12,15 @@ export interface ChazzyProps {
     chzzkChatChannelId: string;
     chzzkAccessToken: string;
     twitchChatChannelId: string;
+    twitchBadges: Record<string, Record<string, string>>[];
 }
 
-export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChatChannelId}: ChazzyProps): ReactElement {
+export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChatChannelId, twitchBadges}: ChazzyProps): ReactElement {
     const isAutoScrollEnabledRef = useRef<boolean>(true)
     const scrollRef = useRef<HTMLDivElement>(null)
     const endOfScrollRef = useRef<HTMLDivElement>(null)
     const {chatList: chzzkChatList, cheeseChatList} = useChzzkChatList(chzzkChatChannelId, chzzkAccessToken, 500, 5)
-    const twitchChatList = useTwitchChatList(twitchChatChannelId, 500)
+    const twitchChatList = useTwitchChatList(twitchChatChannelId, twitchBadges, 500)
 
     const chatList = useMemo(() => {
         return [...chzzkChatList, ...twitchChatList].sort((a, b) => a.time - b.time)

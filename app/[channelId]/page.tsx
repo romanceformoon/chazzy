@@ -20,11 +20,58 @@ export default async function ChazzyPage({params: {channelId}}): Promise<ReactEl
         {signal}
     ).then(r => r.json()).then(data => data['content']['accessToken'])
 
+    const twitchClientId = process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID
+    const twitchAccessToken = process.env.NEXT_PUBLIC_TWITCH_ACCESS_TOKEN
+
+    const twitchBroadcasterId: string = await fetch(
+        `https://api.twitch.tv/helix/users?login=${twitchChannelId}`,
+        {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${twitchAccessToken}`,
+                "Client-Id": twitchClientId
+            },
+            signal
+        }
+    ).then(r => r.json()).then(data => data.data[0].id)
+
+    const globalBadges = await fetch(
+        "https://api.twitch.tv/helix/chat/badges/global",
+        {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${twitchAccessToken}`,
+                "Client-Id": twitchClientId
+            },
+            signal
+        }
+    ).then(r => r.json()).then(data => data.data)
+
+    const broadcasterBadges = await fetch(
+        `https://api.twitch.tv/helix/chat/badges?broadcaster_id=${twitchBroadcasterId}`,
+        {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${twitchAccessToken}`,
+                "Client-Id": twitchClientId
+            },
+            signal
+        }
+    ).then(r => r.json()).then(data => data.data)
+
+    const twitchBadges = Object.fromEntries(
+        [...globalBadges, ...broadcasterBadges].map((badge) => [
+            badge.set_id,
+            Object.fromEntries(badge.versions.map((version) => [version.id, version.image_url_4x]))
+        ])
+    )
+
     return (
         <Chazzy
             chzzkChatChannelId={chzzkChatChannelId}
             chzzkAccessToken={chzzkAccessToken}
             twitchChatChannelId={twitchChannelId}
+            twitchBadges={twitchBadges}
         />
     )
 }

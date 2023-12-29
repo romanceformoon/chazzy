@@ -3,7 +3,7 @@ import {twitchNicknameColors} from "./constants"
 import parseTwitchMessage from "./parseTwitchMessage"
 import {Chat, EmojiMessagePart} from "./types"
 
-export default function useTwitchChatList(chatChannelId: string, maxChatLength: number = 50) {
+export default function useTwitchChatList(chatChannelId: string, badges: Record<string, Record<string, string>>[], maxChatLength: number = 50) {
     const isUnloadingRef = useRef<boolean>(false)
     const lastSetTimestampRef = useRef<number>(0)
     const pendingChatListRef = useRef<Chat[]>([])
@@ -14,7 +14,6 @@ export default function useTwitchChatList(chatChannelId: string, maxChatLength: 
         const source = raw.source
         const tags = raw.tags
         const nickname = tags["display-name"] ?? source["nick"]
-        const badges = []// [tags["badges"]]
         const color = tags["color"] ?? twitchNicknameColors[parseInt(tags["user-id"]) % twitchNicknameColors.length]
         const message = raw["parameters"]
         const emotes = tags["emotes"] ?? {}
@@ -33,7 +32,7 @@ export default function useTwitchChatList(chatChannelId: string, maxChatLength: 
             time: parseInt(tags["tmi-sent-ts"]),
             userId: tags["user-id"],
             nickname,
-            badges,
+            badges: Object.entries(tags["badges"] ?? []).map(([key, version]: [string, string]) => badges[key][version]),
             color,
             emojis: Object.fromEntries(
                 Object.keys(emotes).map((key) =>
@@ -45,7 +44,7 @@ export default function useTwitchChatList(chatChannelId: string, maxChatLength: 
                 return emoteIndex === -1 ? {type: "text", text: `${part} `} : emoteReplacements[emoteIndex].replacement
             })
         }
-    }, [])
+    }, [badges])
 
     const connectTwitch = useCallback(() => {
         const ws = new WebSocket("wss://irc-ws.chat.twitch.tv")
