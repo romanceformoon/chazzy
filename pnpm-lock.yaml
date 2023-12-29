@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  accessible-colors:
+    specifier: ^1.0.5
+    version: 1.0.5
   clsx:
     specifier: ^2.0.0
     version: 2.0.0
@@ -159,6 +162,11 @@ packages:
   /@types/scheduler@0.16.8:
     resolution: {integrity: sha512-WZLiwShhwLRmeV6zH+GkbOFT6Z6VklCItrDioxUnv+u4Ll+8vKeFySoFyK/0ctcRpOmwAicELfmys1sDc/Rw+A==}
     dev: true
+
+  /accessible-colors@1.0.5:
+    resolution: {integrity: sha512-DZLpfYddLs67qbiLC2g4BFJp9aXxoedVz9uBQ65CBFegeogJ0S0+hNXWFqE6ljvBDWM8soBwDoeZ3gpV1YRPaA==}
+    hasBin: true
+    dev: false
 
   /busboy@1.6.0:
     resolution: {integrity: sha512-8SFQbg/0hQ9xy3UNTB0YEnsNBbWfhf7RtnzpL7TkBiTBRfrQ9Fxcnz7VJsleJpyp6rVLvXiuORqjlHi5q+PYuA==}

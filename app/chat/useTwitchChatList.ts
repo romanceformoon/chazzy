@@ -1,5 +1,6 @@
+import {suggestAAColorVariant} from "accessible-colors"
 import {useCallback, useEffect, useRef, useState} from "react"
-import {twitchNicknameColors} from "./constants"
+import {backgroundColor, twitchNicknameColors} from "./constants"
 import parseTwitchMessage from "./parseTwitchMessage"
 import {Chat, EmojiMessagePart} from "./types"
 
@@ -14,7 +15,9 @@ export default function useTwitchChatList(chatChannelId: string, badges: Record<
         const source = raw.source
         const tags = raw.tags
         const nickname = tags["display-name"] ?? source["nick"]
-        const color = tags["color"] ?? twitchNicknameColors[parseInt(tags["user-id"]) % twitchNicknameColors.length]
+        const color = tags["color"] != null
+            ? suggestAAColorVariant(tags["color"], backgroundColor)
+            : twitchNicknameColors[parseInt(tags["user-id"]) % twitchNicknameColors.length]
         const message = raw["parameters"]
         const emotes = tags["emotes"] ?? {}
 
