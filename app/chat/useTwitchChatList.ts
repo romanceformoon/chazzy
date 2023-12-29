@@ -4,7 +4,7 @@ import parseTwitchMessage from "./parseTwitchMessage"
 import {Chat, EmojiMessagePart} from "./types"
 
 export default function useTwitchChatList(chatChannelId: string, maxChatLength: number = 50) {
-    const isBrowserUnloadingRef = useRef<boolean>(false)
+    const isUnloadingRef = useRef<boolean>(false)
     const lastSetTimestampRef = useRef<number>(0)
     const pendingChatListRef = useRef<Chat[]>([])
     const [chatList, setChatList] = useState<Chat[]>([])
@@ -56,7 +56,7 @@ export default function useTwitchChatList(chatChannelId: string, maxChatLength: 
         }
 
         ws.onclose = () => {
-            if (!isBrowserUnloadingRef.current) {
+            if (!isUnloadingRef.current) {
                 setTimeout(() => setWebSocketBuster(new Date().getTime()), 1000)
             }
         }
@@ -97,7 +97,9 @@ export default function useTwitchChatList(chatChannelId: string, maxChatLength: 
     }, [connectTwitch, webSocketBuster])
 
     useEffect(() => {
-        window.addEventListener("beforeunload", () => isBrowserUnloadingRef.current = true)
+        return () => {
+            isUnloadingRef.current = true
+        }
     }, [])
 
     useEffect(() => {

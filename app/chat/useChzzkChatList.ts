@@ -5,7 +5,7 @@ import {Chat, ChatCmd, CheeseChat} from "./types"
 const emojiRegex = /{:([a-zA-Z0-9_]+):}/g
 
 export default function useChzzkChatList(chatChannelId: string, accessToken: string, maxChatLength: number = 50, maxCheeseChatLength: number = 5) {
-    const isBrowserUnloadingRef = useRef<boolean>(false)
+    const isUnloadingRef = useRef<boolean>(false)
     const lastSetTimestampRef = useRef<number>(0)
     const pendingChatListRef = useRef<Chat[]>([])
     const pendingCheeseChatListRef = useRef<CheeseChat[]>([])
@@ -103,7 +103,7 @@ export default function useChzzkChatList(chatChannelId: string, accessToken: str
         }
 
         ws.onclose = () => {
-            if (!isBrowserUnloadingRef.current) {
+            if (!isUnloadingRef.current) {
                 setTimeout(() => setWebSocketBuster(new Date().getTime()), 1000)
             }
         }
@@ -163,7 +163,9 @@ export default function useChzzkChatList(chatChannelId: string, accessToken: str
     }, [connectChzzk, webSocketBuster])
 
     useEffect(() => {
-        window.addEventListener("beforeunload", () => isBrowserUnloadingRef.current = true)
+        return () => {
+            isUnloadingRef.current = true
+        }
     }, [])
 
     useEffect(() => {
