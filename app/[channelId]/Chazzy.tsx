@@ -1,6 +1,7 @@
 "use client"
 
 import {ReactElement, useCallback, useEffect, useMemo, useRef} from "react"
+import {ClearMessage} from "../chat/types"
 import useChzzkChatList from "../chat/useChzzkChatList"
 import useMergedList from "../chat/useMergedList"
 import useTwitchChatList from "../chat/useTwitchChatList"
@@ -21,13 +22,23 @@ export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChat
     const scrollRef = useRef<HTMLDivElement>(null)
     const endOfScrollRef = useRef<HTMLDivElement>(null)
 
+    const handleClearTwitchMessage = useCallback((clearMessage: ClearMessage) => {
+        const filterFn = (chat) => (
+            clearMessage.type === "message" ? chat.uid !== clearMessage.uid : chat.userId !== clearMessage.userId
+        )
+        setChatList((prevChatList) => prevChatList.filter(filterFn))
+        pendingTwitchChatListRef.current = pendingTwitchChatListRef.current.filter(filterFn)
+    },[])
+
     const {
         pendingChatListRef: pendingChzzkChatListRef,
         pendingCheeseChatListRef
     } = useChzzkChatList({chatChannelId: chzzkChatChannelId, accessToken: chzzkAccessToken})
     const {
         pendingChatListRef: pendingTwitchChatListRef
-    } = useTwitchChatList({chatChannelId: twitchChatChannelId, badges: twitchBadges})
+    } = useTwitchChatList({
+        chatChannelId: twitchChatChannelId, badges: twitchBadges, onClearMessage: handleClearTwitchMessage
+    })
 
     const pendingChatListRefs = useMemo(
         () => [pendingChzzkChatListRef, pendingTwitchChatListRef],
@@ -40,7 +51,8 @@ export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChat
     )
 
     const {
-        list: chatList
+        list: chatList,
+        setList: setChatList,
     } = useMergedList({pendingListRefs: pendingChatListRefs, maxLength: 1000})
 
     const {

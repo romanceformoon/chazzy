@@ -32,3 +32,15 @@ export enum ChatCmd {
 export interface CheeseChat extends Chat {
     payAmount: number;
 }
+
+interface ClearSpecificMessage {
+    type: "message";
+    uid: string;
+}
+
+interface ClearUserMessages {
+    type: "user";
+    userId: string;
+}
+
+export type ClearMessage = ClearSpecificMessage | ClearUserMessages

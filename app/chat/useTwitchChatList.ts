@@ -2,21 +2,9 @@ import {suggestAAColorVariant} from "accessible-colors"
 import {useCallback, useEffect, useRef, useState} from "react"
 import {backgroundColor, twitchNicknameColors} from "./constants"
 import parseTwitchMessage from "./parseTwitchMessage"
-import {Chat, EmojiMessagePart} from "./types"
+import {Chat, ClearMessage, EmojiMessagePart} from "./types"
 
 const INTERNAL_MAX_LENGTH = 10000
-
-interface ClearSpecificMessage {
-    type: "message";
-    uid: string;
-}
-
-interface ClearUserMessages {
-    type: "user";
-    userId: string;
-}
-
-type ClearMessage = ClearSpecificMessage | ClearUserMessages
 
 interface Props {
     chatChannelId: string;

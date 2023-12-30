@@ -53,5 +53,5 @@ export default function useMergedList<T extends {time: number}>(props: Props<T>)
         }
     }, [pendingListRefs, maxLength])
 
-    return {list}
+    return {list, setList}
 }
