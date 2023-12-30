@@ -2,6 +2,7 @@
 
 import {ReactElement, useCallback, useEffect, useMemo, useRef} from "react"
 import useChzzkChatList from "../chat/useChzzkChatList"
+import useMergedList from "../chat/useMergedList"
 import useTwitchChatList from "../chat/useTwitchChatList"
 import ChatRow from "./ChatRow"
 import CheeseChatRow from "./CheeseChatRow"
@@ -19,12 +20,32 @@ export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChat
     const isAutoScrollEnabledRef = useRef<boolean>(true)
     const scrollRef = useRef<HTMLDivElement>(null)
     const endOfScrollRef = useRef<HTMLDivElement>(null)
-    const {chatList: chzzkChatList, cheeseChatList} = useChzzkChatList(chzzkChatChannelId, chzzkAccessToken, 500, 5)
-    const twitchChatList = useTwitchChatList(twitchChatChannelId, twitchBadges, 500)
 
-    const chatList = useMemo(() => {
-        return [...chzzkChatList, ...twitchChatList].sort((a, b) => a.time - b.time)
-    }, [chzzkChatList, twitchChatList])
+    const {
+        pendingChatListRef: pendingChzzkChatListRef,
+        pendingCheeseChatListRef
+    } = useChzzkChatList({chatChannelId: chzzkChatChannelId, accessToken: chzzkAccessToken})
+    const {
+        pendingChatListRef: pendingTwitchChatListRef
+    } = useTwitchChatList({chatChannelId: twitchChatChannelId, badges: twitchBadges})
+
+    const pendingChatListRefs = useMemo(
+        () => [pendingChzzkChatListRef, pendingTwitchChatListRef],
+        [pendingChzzkChatListRef, pendingTwitchChatListRef]
+    )
+
+    const pendingCheeseChatListRefs = useMemo(
+        () => [pendingCheeseChatListRef],
+        [pendingCheeseChatListRef]
+    )
+
+    const {
+        list: chatList
+    } = useMergedList({pendingListRefs: pendingChatListRefs, maxLength: 1000})
+
+    const {
+        list: cheeseChatList
+    } = useMergedList({pendingListRefs: pendingCheeseChatListRefs, maxLength: 5})
 
     useEffect(() => {
         if (isAutoScrollEnabledRef.current && endOfScrollRef.current != null) {

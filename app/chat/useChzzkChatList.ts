@@ -2,15 +2,20 @@ import {useCallback, useEffect, useRef, useState} from "react"
 import {chzzkNicknameColors} from "./constants"
 import {Chat, ChatCmd, CheeseChat} from "./types"
 
+const INTERNAL_MAX_LENGTH = 10000
+
 const emojiRegex = /{:([a-zA-Z0-9_]+):}/g
 
-export default function useChzzkChatList(chatChannelId: string, accessToken: string, maxChatLength: number = 50, maxCheeseChatLength: number = 5) {
+interface Props {
+    chatChannelId: string;
+    accessToken: string;
+}
+
+export default function useChzzkChatList(props: Props) {
+    const {chatChannelId, accessToken} = props
     const isUnloadingRef = useRef<boolean>(false)
-    const lastSetTimestampRef = useRef<number>(0)
     const pendingChatListRef = useRef<Chat[]>([])
     const pendingCheeseChatListRef = useRef<CheeseChat[]>([])
-    const [chatList, setChatList] = useState<Chat[]>([])
-    const [cheeseChatList, setCheeseChatList] = useState<CheeseChat[]>([])
     const [webSocketBuster, setWebSocketBuster] = useState<number>(0)
 
     const convertChat = useCallback((raw: any): {chat: Chat, payAmount: number | undefined} => {
@@ -134,13 +139,15 @@ export default function useChzzkChatList(chatChannelId: string, accessToken: str
                         .filter(({payAmount}) => payAmount == null)
                         .map(({chat}) => chat)
 
-                    pendingChatListRef.current = [...pendingChatListRef.current, ...chatList].slice(-1 * maxChatLength)
+                    pendingChatListRef.current =
+                        [...pendingChatListRef.current, ...chatList].slice(-1 * INTERNAL_MAX_LENGTH)
 
                     const cheeseChatList: CheeseChat[] = chats
                         .filter(({payAmount}) => payAmount != null)
                         .map(({chat, payAmount}) => ({...chat, payAmount}))
 
-                    pendingCheeseChatListRef.current = [...pendingCheeseChatListRef.current, ...cheeseChatList].slice(-1 * maxCheeseChatLength)
+                    pendingCheeseChatListRef.current =
+                        [...pendingCheeseChatListRef.current, ...cheeseChatList].slice(-1 * INTERNAL_MAX_LENGTH)
 
                     break
             }
@@ -157,7 +164,7 @@ export default function useChzzkChatList(chatChannelId: string, accessToken: str
             worker.terminate()
             ws.close()
         }
-    }, [accessToken, chatChannelId, convertChat, maxChatLength, maxCheeseChatLength])
+    }, [accessToken, chatChannelId, convertChat])
 
     useEffect(() => {
         return connectChzzk()
@@ -169,52 +176,5 @@ export default function useChzzkChatList(chatChannelId: string, accessToken: str
         }
     }, [])
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if (document.hidden) {
-                return
-            }
-            if (pendingChatListRef.current.length > 0) {
-                if (new Date().getTime() - lastSetTimestampRef.current > 1000) {
-                    setChatList((prevChatList) => {
-                        const newChatList = [...prevChatList, ...pendingChatListRef.current].slice(-1 * maxChatLength)
-                        pendingChatListRef.current = []
-                        return newChatList
-                    })
-                } else {
-                    setChatList((prevChatList) => {
-                        const newChatList = [...prevChatList, pendingChatListRef.current.shift()]
-                        if (newChatList.length > maxChatLength) {
-                            newChatList.shift()
-                        }
-                        return newChatList
-                    })
-                }
-            }
-            if (pendingCheeseChatListRef.current.length > 0) {
-                if (new Date().getTime() - lastSetTimestampRef.current > 1000) {
-                    setCheeseChatList((prevCheeseChatList) => {
-                        const newCheeseChatList = [...prevCheeseChatList, ...pendingCheeseChatListRef.current].slice(-1 * maxCheeseChatLength)
-                        pendingCheeseChatListRef.current = []
-                        return newCheeseChatList
-                    })
-                } else {
-                    setCheeseChatList((prevCheeseChatList) => {
-                        const newCheeseChatList = [...prevCheeseChatList, pendingCheeseChatListRef.current.shift()]
-                        if (newCheeseChatList.length > maxCheeseChatLength) {
-                            newCheeseChatList.shift()
-                        }
-                        return newCheeseChatList
-                    })
-                }
-            }
-            lastSetTimestampRef.current = new Date().getTime()
-        }, 75)
-        return () => {
-            clearInterval(interval)
-            lastSetTimestampRef.current = 0
-        }
-    }, [maxChatLength, maxCheeseChatLength])
-
-    return {chatList, cheeseChatList}
+    return {pendingChatListRef, pendingCheeseChatListRef}
 }

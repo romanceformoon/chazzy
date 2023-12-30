@@ -4,11 +4,30 @@ import {backgroundColor, twitchNicknameColors} from "./constants"
 import parseTwitchMessage from "./parseTwitchMessage"
 import {Chat, EmojiMessagePart} from "./types"
 
-export default function useTwitchChatList(chatChannelId: string, badges: Record<string, Record<string, string>>[], maxChatLength: number = 50) {
+const INTERNAL_MAX_LENGTH = 10000
+
+interface ClearSpecificMessage {
+    type: "message";
+    uid: string;
+}
+
+interface ClearUserMessages {
+    type: "user";
+    userId: string;
+}
+
+type ClearMessage = ClearSpecificMessage | ClearUserMessages
+
+interface Props {
+    chatChannelId: string;
+    badges: Record<string, Record<string, string>>[];
+    onClearMessage?(clearMessage: ClearMessage): void;
+}
+
+export default function useTwitchChatList(props: Props) {
+    const {chatChannelId, badges, onClearMessage} = props
     const isUnloadingRef = useRef<boolean>(false)
-    const lastSetTimestampRef = useRef<number>(0)
     const pendingChatListRef = useRef<Chat[]>([])
-    const [chatList, setChatList] = useState<Chat[]>([])
     const [webSocketBuster, setWebSocketBuster] = useState<number>(0)
 
     const convertChat = useCallback((raw: any): Chat => {
@@ -104,27 +123,16 @@ export default function useTwitchChatList(chatChannelId: string, badges: Record<
                 if (parsedMessage == null) return
                 switch (parsedMessage.command.command) {
                     case 'PRIVMSG':
-                        pendingChatListRef.current = [
-                            ...pendingChatListRef.current,
-                            convertChat(parsedMessage)
-                        ].slice(-1 *  maxChatLength)
+                        pendingChatListRef.current =
+                            [...pendingChatListRef.current, convertChat(parsedMessage)].slice(-1 * INTERNAL_MAX_LENGTH)
                         break;
                     case 'CLEARCHAT':
                         if (parsedMessage.tags["target-user-id"] == null) break;
-                        pendingChatListRef.current = pendingChatListRef.current.filter(
-                            (chat) => chat.userId !== parsedMessage.tags["target-user-id"]
-                        )
-                        setChatList((prevChatList) => prevChatList.filter(
-                            (chat) => chat.userId !== parsedMessage.tags["target-user-id"]
-                        ))
+                        onClearMessage?.({type: "user", userId: parsedMessage.tags["target-user-id"]})
                         break;
                     case 'CLEARMSG':
-                        pendingChatListRef.current = pendingChatListRef.current.filter(
-                            (chat) => chat.uid !== parsedMessage.tags["target-msg-id"]
-                        )
-                        setChatList((prevChatList) => prevChatList.filter(
-                            (chat) => chat.uid !== parsedMessage.tags["target-msg-id"]
-                        ))
+                        if (parsedMessage.tags["target-msg-id"] == null) break;
+                        onClearMessage?.({type: "message", uid: parsedMessage.tags["target-msg-id"]})
                         break;
                     case 'PING':
                         ws.send('PONG');
@@ -147,7 +155,7 @@ export default function useTwitchChatList(chatChannelId: string, badges: Record<
             worker.terminate()
             ws.close()
         }
-    }, [chatChannelId, convertChat, maxChatLength])
+    }, [chatChannelId, convertChat, onClearMessage])
 
     useEffect(() => {
         return connectTwitch()
@@ -159,35 +167,5 @@ export default function useTwitchChatList(chatChannelId: string, badges: Record<
         }
     }, [])
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if (document.hidden) {
-                return
-            }
-            if (pendingChatListRef.current.length > 0) {
-                if (new Date().getTime() - lastSetTimestampRef.current > 1000) {
-                    setChatList((prevChatList) => {
-                        const newChatList = [...prevChatList, ...pendingChatListRef.current].slice(-1 * maxChatLength)
-                        pendingChatListRef.current = []
-                        return newChatList
-                    })
-                } else {
-                    setChatList((prevChatList) => {
-                        const newChatList = [...prevChatList, pendingChatListRef.current.shift()]
-                        if (newChatList.length > maxChatLength) {
-                            newChatList.shift()
-                        }
-                        return newChatList
-                    })
-                }
-            }
-            lastSetTimestampRef.current = new Date().getTime()
-        }, 75)
-        return () => {
-            clearInterval(interval)
-            lastSetTimestampRef.current = 0
-        }
-    }, [maxChatLength])
-
-    return chatList
+    return {pendingChatListRef}
 }
