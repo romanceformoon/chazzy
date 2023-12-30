@@ -51,7 +51,7 @@ export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChat
         if (isAutoScrollEnabledRef.current && endOfScrollRef.current != null) {
             endOfScrollRef.current.scrollIntoView();
         }
-    }, [chatList])
+    }, [chatList, cheeseChatList])
 
     const handleScroll = useCallback(() => {
         if (scrollRef.current == null) return
