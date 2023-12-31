@@ -31,7 +31,6 @@ div#chat-list-container > div.chat-row > img.badge {
 
 div#chat-list-container > div.chat-row > span.nickname {
     padding-right: 8px;
-    font-weight: 700;
 }
 
 div#chat-list-container > div.chat-row > span.message > img.emoji {
