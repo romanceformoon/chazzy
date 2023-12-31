@@ -4,7 +4,7 @@ import {Chat, ChatCmd, CheeseChat} from "./types"
 
 const INTERNAL_MAX_LENGTH = 10000
 
-const emojiRegex = /{:([a-zA-Z0-9_]+):}/g
+const emojiRegex = /{:([a-zA-Z0-9_]+):}/
 
 interface Props {
     chatChannelId: string;

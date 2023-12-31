@@ -6,6 +6,8 @@ import {Chat, ClearMessage, EmojiMessagePart} from "./types"
 
 const INTERNAL_MAX_LENGTH = 10000
 
+const emojiRegex = /([^ ]+)/
+
 interface Props {
     chatChannelId: string;
     badges: Record<string, Record<string, string>>[];
@@ -49,9 +51,9 @@ export default function useTwitchChatList(props: Props) {
                     [key, `https://static-cdn.jtvnw.net/emoticons/v2/${key}/default/dark/4.0`]
                 )
             ),
-            message: message.split(' ').map((part) => {
+            message: message.split(emojiRegex).filter((part) => part !== '').map((part) => {
                 const emoteIndex = emoteReplacements.findIndex(({stringToReplace}) => stringToReplace === part)
-                return emoteIndex === -1 ? {type: "text", text: `${part} `} : emoteReplacements[emoteIndex].replacement
+                return emoteIndex === -1 ? {type: "text", text: `${part}`} : emoteReplacements[emoteIndex].replacement
             })
         }
     }, [badges])
