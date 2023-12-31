@@ -26,16 +26,27 @@ export enum ChatCmd {
     PONG = 10000,
     CONNECT = 100,
     CHAT = 93101,
-    CHEESE_CHAT = 93102
+    CHEESE_CHAT = 93102,
+    BLIND = 94008
 }
 
 export interface CheeseChat extends Chat {
     payAmount: number;
 }
 
+interface ClearByChzzkMessageMethod {
+    type: "chzzk";
+    userId: string;
+}
+
+interface ClearTwitchMessageMethod {
+    type: "twitch";
+    uid: string;
+}
+
 interface ClearSpecificMessage {
     type: "message";
-    uid: string;
+    method: ClearByChzzkMessageMethod | ClearTwitchMessageMethod;
 }
 
 interface ClearUserMessages {

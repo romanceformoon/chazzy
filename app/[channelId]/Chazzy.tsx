@@ -1,7 +1,7 @@
 "use client"
 
 import {ReactElement, useCallback, useEffect, useMemo, useRef} from "react"
-import {ClearMessage} from "../chat/types"
+import {Chat, ClearMessage} from "../chat/types"
 import useChzzkChatList from "../chat/useChzzkChatList"
 import useMergedList from "../chat/useMergedList"
 import useTwitchChatList from "../chat/useTwitchChatList"
@@ -22,9 +22,45 @@ export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChat
     const scrollRef = useRef<HTMLDivElement>(null)
     const endOfScrollRef = useRef<HTMLDivElement>(null)
 
+    const handleClearChzzkMessage = useCallback((clearMessage: ClearMessage) => {
+        setChatList((prevChatList) => {
+            const findFn = ({userId}: Chat) => (
+                clearMessage.type === "message" &&  clearMessage.method.type === "chzzk"
+                    ? clearMessage.method.userId === userId
+                    : false
+            )
+            const lastChatOnPendingChatList = pendingChzzkChatListRef.current.findLast(findFn)
+            const lastChatOnChatList = prevChatList.findLast(findFn)
+            if (lastChatOnPendingChatList == null && lastChatOnChatList != null) {
+                return prevChatList.filter(
+                    ({uid}: Chat) => uid !== lastChatOnChatList.uid
+                )
+            } else if (lastChatOnPendingChatList != null && lastChatOnChatList == null) {
+                pendingChzzkChatListRef.current = pendingChzzkChatListRef.current.filter(
+                    ({uid}: Chat) => uid !== lastChatOnPendingChatList.uid
+                )
+                return prevChatList
+            } else if (lastChatOnPendingChatList != null && lastChatOnChatList != null) {
+                if (lastChatOnChatList.time > lastChatOnPendingChatList.time) {
+                    return prevChatList.filter(
+                        ({uid}: Chat) => uid !== lastChatOnChatList.uid
+                    )
+                } else {
+                    pendingChzzkChatListRef.current = pendingChzzkChatListRef.current.filter(
+                        ({uid}: Chat) => uid !== lastChatOnPendingChatList.uid
+                    )
+                    return prevChatList
+                }
+            }
+            return prevChatList
+        })
+    },[])
+
     const handleClearTwitchMessage = useCallback((clearMessage: ClearMessage) => {
-        const filterFn = (chat) => (
-            clearMessage.type === "message" ? chat.uid !== clearMessage.uid : chat.userId !== clearMessage.userId
+        const filterFn = ({uid, userId}: Chat) => (
+            clearMessage.type === "message"
+                ? clearMessage.method.type !== "twitch" || clearMessage.method.uid !== uid
+                : clearMessage.userId !== userId
         )
         setChatList((prevChatList) => prevChatList.filter(filterFn))
         pendingTwitchChatListRef.current = pendingTwitchChatListRef.current.filter(filterFn)
@@ -33,7 +69,9 @@ export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChat
     const {
         pendingChatListRef: pendingChzzkChatListRef,
         pendingCheeseChatListRef
-    } = useChzzkChatList({chatChannelId: chzzkChatChannelId, accessToken: chzzkAccessToken})
+    } = useChzzkChatList({
+        chatChannelId: chzzkChatChannelId, accessToken: chzzkAccessToken, onClearMessage: handleClearChzzkMessage
+    })
     const {
         pendingChatListRef: pendingTwitchChatListRef
     } = useTwitchChatList({

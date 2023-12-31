@@ -118,11 +118,20 @@ export default function useTwitchChatList(props: Props) {
                         break;
                     case 'CLEARCHAT':
                         if (parsedMessage.tags["target-user-id"] == null) break;
-                        onClearMessage?.({type: "user", userId: parsedMessage.tags["target-user-id"]})
+                        onClearMessage?.({
+                            type: "user",
+                            userId: parsedMessage.tags["target-user-id"]
+                        })
                         break;
                     case 'CLEARMSG':
                         if (parsedMessage.tags["target-msg-id"] == null) break;
-                        onClearMessage?.({type: "message", uid: parsedMessage.tags["target-msg-id"]})
+                        onClearMessage?.({
+                            type: "message",
+                            method: {
+                                type: "twitch",
+                                uid: parsedMessage.tags["target-msg-id"]
+                            }
+                        })
                         break;
                     case 'PING':
                         ws.send('PONG');

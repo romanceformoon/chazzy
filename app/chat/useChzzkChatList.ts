@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useRef, useState} from "react"
 import {chzzkNicknameColors} from "./constants"
-import {Chat, ChatCmd, CheeseChat} from "./types"
+import {Chat, ChatCmd, CheeseChat, ClearMessage} from "./types"
 
 const INTERNAL_MAX_LENGTH = 10000
 
@@ -9,10 +9,11 @@ const emojiRegex = /{:([a-zA-Z0-9_]+):}/
 interface Props {
     chatChannelId: string;
     accessToken: string;
+    onClearMessage?(clearMessage: ClearMessage): void;
 }
 
 export default function useChzzkChatList(props: Props) {
-    const {chatChannelId, accessToken} = props
+    const {chatChannelId, accessToken, onClearMessage} = props
     const isUnloadingRef = useRef<boolean>(false)
     const pendingChatListRef = useRef<Chat[]>([])
     const pendingCheeseChatListRef = useRef<CheeseChat[]>([])
@@ -149,6 +150,12 @@ export default function useChzzkChatList(props: Props) {
                     pendingCheeseChatListRef.current =
                         [...pendingCheeseChatListRef.current, ...cheeseChatList].slice(-1 * INTERNAL_MAX_LENGTH)
 
+                    break
+                case ChatCmd.BLIND:
+                    onClearMessage?.({
+                        type: "message",
+                        method: {type: "chzzk", userId: json['bdy'].userId}
+                    })
                     break
             }
 
