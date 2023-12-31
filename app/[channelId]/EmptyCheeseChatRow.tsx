@@ -2,20 +2,7 @@ import {memo} from "react"
 
 function EmptyCheeseChatRow() {
     return (
-        <div
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                background: "rgba(255, 255, 255, 0.125)",
-                color: "white",
-                padding: "12px",
-                gap: "4px",
-                borderRadius: "4px",
-                opacity: "0.35",
-                animation: "20s linear fadeout",
-                lineHeight: "calc(var(--font-size) * 1.25)",
-            }}
-        >
+        <div className="empty-cheese-chat-row">
             <div style={{fontWeight: 700}}>
                 최근&nbsp;
                 <span style={{color: "#e4ce00"}}>치즈</span>

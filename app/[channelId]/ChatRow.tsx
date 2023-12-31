@@ -9,22 +9,18 @@ function ChatRow(props: Chat) {
     })()
 
     return (
-        <div style={{lineHeight: "calc(var(--font-size) * 1.5)", wordWrap: "break-word", fontWeight: 400, color: "white"}}>
-            <span style={{paddingRight: "8px", fontWeight: 100}}>{timestamp}</span>
+        <div className="chat-row">
+            <span className="timestamp">{timestamp}</span>
             {badges.length > 0 && badges.map((src, i) => (
-                <img key={i} alt="" src={src} style={{height: "var(--font-size)", paddingTop: "calc(var(--font-size) * 0.25)", paddingRight: "8px", verticalAlign: "top"}} />
+                <img key={i} className="badge" alt="" src={src} />
             ))}
-            <span style={{color: color, paddingRight: "8px", fontWeight: 700}}>{nickname}:</span>
-            <span>
+            <span className="nickname" style={{color: color}}>{nickname}:</span>
+            <span className="message">
                 {message.map((part, i) => (
                     <Fragment key={i}>
                         {part.type === "text"
-                            ? part.text
-                            : (
-                                <span style={{position: "relative", padding: "1px"}}>
-                                    <img alt={part.emojiKey} src={emojis[part.emojiKey]} style={{height: "calc(var(--font-size) * 1.5)", verticalAlign: "top"}}/>
-                                </span>
-                            )}
+                            ? <span>{part.text}</span>
+                            : <img className="emoji" alt={part.emojiKey} src={emojis[part.emojiKey]}/>}
                     </Fragment>
                 ))}
             </span>

@@ -9,43 +9,27 @@ function CheeseChatRow(props: CheeseChat) {
     })()
 
     return (
-        <div
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                background: "rgba(255, 255, 255, 0.125)",
-                color: "white",
-                padding: "12px",
-                gap: "4px",
-                borderRadius: "4px",
-                opacity: "0.35",
-                animation: "20s linear fadeout",
-                lineHeight: "calc(var(--font-size) * 1.25)"
-            }}
-        >
-            <div style={{fontWeight: 700}}>
+        <div className="cheese-chat-row">
+            <div className="header">
                 {badges.length > 0 && badges.map((src, i) => (
-                    <img key={i} alt="" src={src} style={{height: "var(--font-size)", paddingTop: "calc(var(--font-size) * 0.125)", paddingRight: "4px", verticalAlign: "top"}} />
+                    <img key={i} className="badge" alt="" src={src} />
                 ))}
                 <span style={{color: color}}>{nickname}</span>
-                님이&nbsp;
-                <span style={{color: "#e4ce00"}}>{payAmount.toLocaleString("ko-KR")} 치즈</span>
-                &nbsp;후원
+                <span>님이 </span>
+                <span className="cheese">{payAmount.toLocaleString("ko-KR")} 치즈 </span>
+                <span>후원</span>
             </div>
-            <div>
+            <div className="message">
                 {message.map((part, i) => (
                     <Fragment key={i}>
                         {part.type === "text"
-                            ? part.text
-                            : (
-                                <span style={{position: "relative", padding: "1px"}}>
-                                    <img alt={part.emojiKey} src={emojis[part.emojiKey]} style={{height: "calc(var(--font-size) * 1.25)", verticalAlign: "top"}}/>
-                                </span>
-                            )}
+                            ? <span>{part.text}</span>
+                            : <img className="emoji" alt={part.emojiKey} src={emojis[part.emojiKey]}/>
+                        }
                     </Fragment>
                 ))}
             </div>
-            <div style={{textAlign: "right", fontWeight: 100}}>[{timestamp}]</div>
+            <div className="timestamp">[{timestamp}]</div>
         </div>
     )
 }

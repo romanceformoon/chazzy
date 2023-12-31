@@ -6,19 +6,106 @@ body {
     background-color: rgb(20, 21, 23);
 }
 
-div#chat-list-container > div:not(:first-of-type) {
-    margin-top: 2px
+div#chat-list-container > div.chat-row:not(:first-of-type) {
+    margin-top: 2px;
+}
+
+div#chat-list-container > div.chat-row {
+    line-height: calc(var(--font-size) * 1.5);
+    word-wrap: break-word;
+    font-weight: 400;
+    color: white;
+}
+
+div#chat-list-container > div.chat-row > span.timestamp {
+    padding-right: 8px;
+    font-weight: 100;
+}
+
+div#chat-list-container > div.chat-row > img.badge {
+    height: var(--font-size);
+    padding-top: calc(var(--font-size) * 0.25);
+    padding-right: 8px;
+    vertical-align: top;
+}
+
+div#chat-list-container > div.chat-row > span.nickname {
+    padding-right: 8px;
+    font-weight: 700;
+}
+
+div#chat-list-container > div.chat-row > span.message > img.emoji {
+    height: calc(var(--font-size) * 1.5);
+    vertical-align: top;
 }
 
 div#chazzy-container {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    padding: 8px;
     height: calc(100vh - 16px);
     height: calc(100dvh - 16px);
-    flex-direction: row;
 }
 
 div#cheese-chat-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     flex: 1;
     height: 100%;
+    overflow-y: scroll;
+}
+
+div#cheese-chat-list-container > div.empty-cheese-chat-row {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.125);
+    color: white;
+    padding: 12px;
+    gap: 4px;
+    border-radius: 4px;
+    opacity: 0.35;
+    animation: 20s linear fadeout;
+    line-height: calc(var(--font-size) * 1.25);
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.125);
+    color: white;
+    padding: 12px;
+    border-radius: 4px;
+    opacity: 0.35;
+    animation: 20s linear fadeout;
+    line-height: calc(var(--font-size) * 1.25);
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row > div.header {
+    font-weight: 700;
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row > div.header > img.badge {
+    height: var(--font-size);
+    padding-top: calc(var(--font-size) * 0.125);
+    padding-right: 4px;
+    vertical-align: top;
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row > div.header > span.cheese {
+    color: #e4ce00;
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row > div.message > img.emoji {
+    height: calc(var(--font-size) * 1.25);
+    vertical-align: top;
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row > div.timestamp {
+    text-align: right;
+    font-weight: 100;
 }
 
 @media (max-width: 1023px) {
