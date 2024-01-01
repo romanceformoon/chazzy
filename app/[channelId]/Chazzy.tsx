@@ -131,7 +131,7 @@ export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChat
             style={{flex: 2, height: "100%", overflowY: "scroll"}}
         >
             {chatList.map((chat) => (
-                <ChatRow key={chat.uid} {...chat} />
+                chat && <ChatRow key={chat.uid} {...chat} />
             ))}
             <div ref={endOfScrollRef} />
         </div>
