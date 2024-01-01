@@ -1,6 +1,6 @@
 "use client"
 
-import {ReactElement, useCallback, useEffect, useMemo, useRef} from "react"
+import {CSSProperties, ReactElement, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react"
 import {Chat, ClearMessage} from "../chat/types"
 import useChzzkChatList from "../chat/useChzzkChatList"
 import useMergedList from "../chat/useMergedList"
@@ -18,9 +18,11 @@ export interface ChazzyProps {
 }
 
 export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChatChannelId, twitchBadges}: ChazzyProps): ReactElement {
-    const isAutoScrollEnabledRef = useRef<boolean>(true)
-    const scrollRef = useRef<HTMLDivElement>(null)
-    const endOfScrollRef = useRef<HTMLDivElement>(null)
+    const isChatAutoScrollEnabledRef = useRef<boolean>(true)
+    const chatScrollRef = useRef<HTMLDivElement>(null)
+    const endOfChatScrollRef = useRef<HTMLDivElement>(null)
+    const cheeseChatScrollRef = useRef<HTMLDivElement>(null)
+    const [cheeseChatStyle, setCheeseChatStyle] = useState<CSSProperties>(undefined)
 
     const handleClearChzzkMessage = useCallback((clearMessage: ClearMessage) => {
         setChatList((prevChatList) => {
@@ -98,16 +100,29 @@ export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChat
     } = useMergedList({pendingListRefs: pendingCheeseChatListRefs, maxLength: 5})
 
     useEffect(() => {
-        if (isAutoScrollEnabledRef.current && endOfScrollRef.current != null) {
-            endOfScrollRef.current.scrollIntoView();
+        if (isChatAutoScrollEnabledRef.current && endOfChatScrollRef.current != null) {
+            endOfChatScrollRef.current.scrollIntoView();
         }
     }, [chatList, cheeseChatList])
 
-    const handleScroll = useCallback(() => {
-        if (scrollRef.current == null) return
-        isAutoScrollEnabledRef.current =
-            scrollRef.current.scrollHeight <= scrollRef.current.scrollTop + scrollRef.current.clientHeight + 120
+    const handleChatScroll = useCallback(() => {
+        if (chatScrollRef.current == null) return
+        isChatAutoScrollEnabledRef.current =
+            chatScrollRef.current.scrollHeight <= chatScrollRef.current.scrollTop + chatScrollRef.current.clientHeight + 120
     }, []);
+
+    const handleCheeseChatScroll = useCallback(() => {
+        if (cheeseChatScrollRef.current == null) return
+        const isTop = cheeseChatScrollRef.current.scrollTop <= 0
+        const isBottom = cheeseChatScrollRef.current.scrollTop >= cheeseChatScrollRef.current.scrollHeight - cheeseChatScrollRef.current.clientHeight
+        setCheeseChatStyle({
+            maskImage: `linear-gradient(to bottom, ${isTop ? "red" : "transparent"} 0, red 1em calc(100% - 1em), ${isBottom ? "red" : "transparent"} 100%)`
+        })
+    }, []);
+
+    useLayoutEffect(() => {
+        handleCheeseChatScroll()
+    }, [cheeseChatList])
 
     const reversedCheeseChatList = useMemo(() => {
         const copied = [...cheeseChatList]
@@ -120,22 +135,33 @@ export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChat
             id="chat-list-container"
             ref={(ref) => {
                 if (ref == null) return
-                if (scrollRef.current != null) {
-                    scrollRef.current.removeEventListener("wheel", handleScroll)
-                    scrollRef.current.removeEventListener("touchmove", handleScroll)
+                if (chatScrollRef.current != null) {
+                    chatScrollRef.current.removeEventListener("wheel", handleChatScroll)
+                    chatScrollRef.current.removeEventListener("touchmove", handleChatScroll)
                 }
-                ref.addEventListener("wheel", handleScroll)
-                ref.addEventListener("touchmove", handleScroll)
-                scrollRef.current = ref
+                ref.addEventListener("wheel", handleChatScroll)
+                ref.addEventListener("touchmove", handleChatScroll)
+                chatScrollRef.current = ref
             }}
             style={{flex: 2, height: "100%", overflowY: "scroll"}}
         >
             {chatList.map((chat) => (
                 chat && <ChatRow key={chat.uid} {...chat} />
             ))}
-            <div ref={endOfScrollRef} />
+            <div ref={endOfChatScrollRef}/>
         </div>
-        <div id="cheese-chat-list-container">
+        <div
+            id="cheese-chat-list-container"
+            ref={(ref) => {
+                if (ref == null) return
+                if (cheeseChatScrollRef.current != null) {
+                    cheeseChatScrollRef.current.removeEventListener("scroll", handleCheeseChatScroll)
+                }
+                ref.addEventListener("scroll", handleCheeseChatScroll)
+                cheeseChatScrollRef.current = ref
+            }}
+            style={cheeseChatStyle}
+        >
             {reversedCheeseChatList.length === 0
                 ? <EmptyCheeseChatRow />
                 : reversedCheeseChatList.map((cheeseChat) => (
