@@ -157,7 +157,7 @@ div#cheese-chat-list-container > div.cheese-chat-row > div.footer > div.cheese >
     padding: calc((var(--font-size) - 1px) * 0.125) 6px 0 0;
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 799px) {
     div#chazzy-container {
         flex-direction: column-reverse;
     }
