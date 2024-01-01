@@ -1,15 +1,20 @@
 import {memo} from "react"
+import CheeseIcon from "./CheeseIcon"
 
 function EmptyCheeseChatRow() {
     return (
-        <div className="empty-cheese-chat-row">
-            <div style={{fontWeight: 700}}>
-                최근&nbsp;
-                <span style={{color: "#e4ce00"}}>치즈</span>
-                &nbsp;후원 내역 없음
+        <div className="cheese-chat-row">
+            <div className="content">
+                <span className="message">
+                    <span>치즈 후원이 발생하면 이 곳에 표시됩니다. 🧀</span>
+                </span>
             </div>
-            <div>
-                치즈 후원이 발생하면 이 곳에 표시됩니다. 🧀
+            <div className="footer">
+                <div className="nickname" />
+                <div className="cheese">
+                    <CheeseIcon/>
+                    0
+                </div>
             </div>
         </div>
     )

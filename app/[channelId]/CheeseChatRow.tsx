@@ -1,35 +1,50 @@
 import {Fragment, memo} from "react"
 import {CheeseChat} from "../chat/types"
+import CheeseIcon from "@/app/[channelId]/CheeseIcon"
 
 function CheeseChatRow(props: CheeseChat) {
-    const {time, nickname, badges, color, emojis, message, payAmount} = props
+    const {time, nickname, badges, emojis, message, payAmount} = props
     const timestamp = (() => {
         const date = new Date(time)
         return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
     })()
+    const tier = (() => {
+        if (payAmount >= 100000) {
+            return "tier3"
+        } else if (payAmount >= 10000) {
+            return "tier2"
+        } else {
+            return "tier1"
+        }
+    })()
 
     return (
-        <div className="cheese-chat-row">
-            <div className="header">
-                {badges.length > 0 && badges.map((src, i) => (
-                    <img key={i} className="badge" alt="" src={src} />
-                ))}
-                <span style={{color: color}}>{nickname}</span>
-                <span>님이 </span>
-                <span className="cheese">{payAmount.toLocaleString("ko-KR")} 치즈 </span>
-                <span>후원</span>
+        <div className={`cheese-chat-row ${tier}`}>
+            <div className="content">
+                <span className="timestamp">[{timestamp}]</span>
+                <span className="message">
+                    {message.map((part, i) => (
+                        <Fragment key={i}>
+                            {part.type === "text"
+                                ? <span>{part.text}</span>
+                                : <img className="emoji" alt={part.emojiKey} src={emojis[part.emojiKey]}/>
+                            }
+                        </Fragment>
+                    ))}
+                </span>
             </div>
-            <div className="message">
-                {message.map((part, i) => (
-                    <Fragment key={i}>
-                        {part.type === "text"
-                            ? <span>{part.text}</span>
-                            : <img className="emoji" alt={part.emojiKey} src={emojis[part.emojiKey]}/>
-                        }
-                    </Fragment>
-                ))}
+            <div className="footer">
+                <div className="nickname">
+                    {badges.length > 0 && badges.map((src, i) => (
+                        <img key={i} className="badge" alt="" src={src}/>
+                    ))}
+                    <span>{nickname}</span>
+                </div>
+                <div className="cheese">
+                    <CheeseIcon/>
+                    {payAmount.toLocaleString("ko-KR")}
+                </div>
             </div>
-            <div className="timestamp">[{timestamp}]</div>
         </div>
     )
 }

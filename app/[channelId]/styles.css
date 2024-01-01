@@ -73,38 +73,88 @@ div#cheese-chat-list-container > div.cheese-chat-row {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    background: rgba(255, 255, 255, 0.125);
     color: white;
-    padding: 12px;
-    border-radius: 4px;
-    opacity: 0.35;
+    font-size: calc(var(--font-size) - 1px);
+    background: rgba(255, 255, 255, 0.125);
+    box-shadow: inset 1px 1px 1px 0 hsla(0, 0%, 100%, 0.1);
+    border-radius: 8px;
+    opacity: 0.4;
     animation: 20s linear fadeout;
-    line-height: calc(var(--font-size) * 1.25);
 }
 
-div#cheese-chat-list-container > div.cheese-chat-row > div.header {
+div#cheese-chat-list-container > div.cheese-chat-row.tier1 {
+    background: linear-gradient(270deg, rgba(0,0,0,.2), transparent), linear-gradient(180deg, hsla(0, 0%, 100%, 0.1), hsla(0, 0%, 100%, 0)), rgba(65, 39, 118, 1);
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row.tier2 {
+    background: linear-gradient(270deg, rgba(0,0,0,.2), transparent), linear-gradient(180deg, hsla(0, 0%, 100%, 0.1), hsla(0, 0%, 100%, 0)), rgba(26, 112, 96, 1);
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row.tier3 {
+    background: linear-gradient(270deg, rgba(0,0,0,.2), transparent), linear-gradient(180deg, hsla(0, 0%, 100%, 0.1), hsla(0, 0%, 100%, 0)), rgba(207, 154, 18, 1);
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row > div {
+    padding: 4px 10px;
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row > div.content {
+    flex: 1;
+    line-height: 1.25em;
+    padding: 10px 10px 4px 10px;
+    text-shadow: black 0 0 1px;
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row > div.content > span.timestamp {
+    margin-right: 3px;
+    font-weight: 200;
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row > div.content > span.message {
     font-weight: 700;
 }
 
-div#cheese-chat-list-container > div.cheese-chat-row > div.header > img.badge {
+div#cheese-chat-list-container > div.cheese-chat-row > div.content > span.message > img.emoji {
+    height: 1.25em;
+    vertical-align: top;
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row > div.footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px;
+    line-height: 1.25em;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.1));
+    padding: 6px 10px 4px 10px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row > div.footer > div.nickname {
+    flex: 1;
+    font-weight: 700;
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row > div.footer > div.nickname > img.badge {
     height: var(--font-size);
     padding-top: calc(var(--font-size) * 0.125);
     padding-right: 4px;
     vertical-align: top;
 }
 
-div#cheese-chat-list-container > div.cheese-chat-row > div.header > span.cheese {
-    color: #e4ce00;
+div#cheese-chat-list-container > div.cheese-chat-row > div.footer > div.cheese {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 13px;
+    padding: 4px 8px;
+    font-weight: 800;
 }
 
-div#cheese-chat-list-container > div.cheese-chat-row > div.message > img.emoji {
-    height: calc(var(--font-size) * 1.25);
+div#cheese-chat-list-container > div.cheese-chat-row > div.footer > div.cheese > svg {
+    height: 1em;
     vertical-align: top;
-}
-
-div#cheese-chat-list-container > div.cheese-chat-row > div.timestamp {
-    text-align: right;
-    font-weight: 100;
+    padding: calc((var(--font-size) - 1px) * 0.125) 6px 0 0;
 }
 
 @media (max-width: 1023px) {
@@ -120,7 +170,7 @@ div#cheese-chat-list-container > div.cheese-chat-row > div.timestamp {
 }
 
 @keyframes fadeout {
-    0% {bottom: 30px; opacity: 1;}
-    90% {bottom: 30px; opacity: 1;}
-    100% {bottom: 0; opacity: 0.35;}
+    0% {opacity: 1;}
+    90% {opacity: 1;}
+    100% {opacity: 0.4;}
 }
