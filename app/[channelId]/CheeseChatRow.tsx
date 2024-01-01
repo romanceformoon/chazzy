@@ -1,6 +1,7 @@
 import {Fragment, memo} from "react"
 import {CheeseChat} from "../chat/types"
 import CheeseIcon from "@/app/[channelId]/CheeseIcon"
+import urlRegexSafe from "url-regex-safe"
 
 function CheeseChatRow(props: CheeseChat) {
     const {time, nickname, badges, emojis, message, payAmount} = props
@@ -26,7 +27,9 @@ function CheeseChatRow(props: CheeseChat) {
                     {message.map((part, i) => (
                         <Fragment key={i}>
                             {part.type === "text"
-                                ? <span>{part.text}</span>
+                                ? urlRegexSafe({exact: true}).test(part.text)
+                                    ? <a href={part.text.startsWith('http') ? part.text : `https://${part.text}`} target="_blank">{part.text}</a>
+                                    : <span>{part.text}</span>
                                 : <img className="emoji" alt={part.emojiKey} src={emojis[part.emojiKey]}/>
                             }
                         </Fragment>

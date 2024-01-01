@@ -33,6 +33,15 @@ div#chat-list-container > div.chat-row > span.nickname {
     padding-right: 8px;
 }
 
+div#chat-list-container > div.chat-row > span.message > a {
+    color: inherit;
+    text-decoration: none;
+}
+
+div#chat-list-container > div.chat-row > span.message > a:hover {
+    text-decoration: underline;
+}
+
 div#chat-list-container > div.chat-row > span.message > img.emoji {
     height: calc(var(--font-size) * 1.5);
     vertical-align: top;
@@ -112,6 +121,15 @@ div#cheese-chat-list-container > div.cheese-chat-row > div.content > span.timest
 
 div#cheese-chat-list-container > div.cheese-chat-row > div.content > span.message {
     font-weight: 700;
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row > div.content > span.message > a {
+    color: inherit;
+    text-decoration: none;
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row > div.content > span.message > a:hover {
+    text-decoration: underline;
 }
 
 div#cheese-chat-list-container > div.cheese-chat-row > div.content > span.message > img.emoji {

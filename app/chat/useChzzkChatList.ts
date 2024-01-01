@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useRef, useState} from "react"
 import {chzzkNicknameColors} from "./constants"
-import {Chat, ChatCmd, CheeseChat, ClearMessage} from "./types"
+import {Chat, ChatCmd, CheeseChat, ClearMessage, TextMessagePart} from "./types"
 
 const INTERNAL_MAX_LENGTH = 10000
 
@@ -10,6 +10,12 @@ interface Props {
     chatChannelId: string;
     accessToken: string;
     onClearMessage?(clearMessage: ClearMessage): void;
+}
+
+function splitWithSpace(message: string): TextMessagePart[] {
+    return message.split(/([^ ]+)/).filter((part) => part !== '').map(
+        (part) => ({type: "text", text: part})
+    )
 }
 
 export default function useChzzkChatList(props: Props) {
@@ -50,9 +56,9 @@ export default function useChzzkChatList(props: Props) {
                 emojis,
                 message: match
                     ? message.split(emojiRegex).map(
-                        (part, i) => i % 2 == 0 ? {type: "text", text: part} : {type: "emoji", emojiKey: part}
-                    )
-                    : [{type: "text", text: message}]
+                        (part, i) => i % 2 == 0 ? splitWithSpace(part) : [{type: "emoji", emojiKey: part}]
+                    ).flat()
+                    : splitWithSpace(message)
             },
             payAmount: extras?.payAmount
         }

@@ -53,7 +53,7 @@ export default function useTwitchChatList(props: Props) {
             ),
             message: message.split(emojiRegex).filter((part) => part !== '').map((part) => {
                 const emoteIndex = emoteReplacements.findIndex(({stringToReplace}) => stringToReplace === part)
-                return emoteIndex === -1 ? {type: "text", text: `${part}`} : emoteReplacements[emoteIndex].replacement
+                return emoteIndex === -1 ? {type: "text", text: part} : emoteReplacements[emoteIndex].replacement
             })
         }
     }, [badges])

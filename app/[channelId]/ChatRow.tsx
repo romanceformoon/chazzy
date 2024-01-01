@@ -1,4 +1,5 @@
 import {Fragment, memo} from "react"
+import urlRegexSafe from "url-regex-safe"
 import {Chat} from "../chat/types"
 
 function ChatRow(props: Chat) {
@@ -19,7 +20,9 @@ function ChatRow(props: Chat) {
                 {message.map((part, i) => (
                     <Fragment key={i}>
                         {part.type === "text"
-                            ? <span>{part.text}</span>
+                            ? urlRegexSafe({exact: true}).test(part.text)
+                              ? <a href={part.text.startsWith('http') ? part.text : `https://${part.text}`} target="_blank">{part.text}</a>
+                              : <span>{part.text}</span>
                             : <img className="emoji" alt={part.emojiKey} src={emojis[part.emojiKey]}/>}
                     </Fragment>
                 ))}
