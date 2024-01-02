@@ -135,10 +135,19 @@ export default function useChzzkChatList(props: Props) {
                 case ChatCmd.CHEESE_CHAT:
                     const chats: {chat: Chat, payAmount: number | undefined}[] =
                         json['bdy']
-                            .filter(chat => (chat['msgStatusType'] || chat['messageStatusType']) !== "HIDDEN")
-                            .filter(chat => {
+                            .filter((chat) => {
+                                if ((chat['msgStatusType'] || chat['messageStatusType']) === "HIDDEN") {
+                                    return false
+                                }
                                 const messageTypeCode = chat['msgTypeCode'] || chat['messageTypeCode']
-                                return messageTypeCode === 1 || messageTypeCode === 10
+                                if (messageTypeCode !== 1 && messageTypeCode !== 10) {
+                                    return false
+                                }
+                                // FIXME: profile이 null로 들어오는 경우가 있어서 임시로 처리함
+                                if (chat['profile'] === "null") {
+                                    return false
+                                }
+                                return true
                             })
                             .map(convertChat)
 
