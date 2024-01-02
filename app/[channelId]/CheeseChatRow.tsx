@@ -10,7 +10,9 @@ function CheeseChatRow(props: CheeseChat) {
         return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
     })()
     const tier = (() => {
-        if (payAmount >= 100000) {
+        if (payAmount >= 1000000) {
+            return "tier4"
+        } else if (payAmount >= 100000) {
             return "tier3"
         } else if (payAmount >= 10000) {
             return "tier2"

@@ -92,15 +92,19 @@ div#cheese-chat-list-container > div.cheese-chat-row {
 }
 
 div#cheese-chat-list-container > div.cheese-chat-row.tier1 {
-    background: linear-gradient(270deg, rgba(0,0,0,.2), transparent), linear-gradient(180deg, hsla(0, 0%, 100%, 0.1), hsla(0, 0%, 100%, 0)), rgba(65, 39, 118, 1);
+    background: linear-gradient(270deg, rgba(0, 0, 0, 0.2), transparent), linear-gradient(180deg, hsla(0, 0%, 100%, 0.1), hsla(0, 0%, 100%, 0)), rgba(65, 39, 118, 1);
 }
 
 div#cheese-chat-list-container > div.cheese-chat-row.tier2 {
-    background: linear-gradient(270deg, rgba(0,0,0,.2), transparent), linear-gradient(180deg, hsla(0, 0%, 100%, 0.1), hsla(0, 0%, 100%, 0)), rgba(26, 112, 96, 1);
+    background: linear-gradient(270deg, rgba(0, 0, 0, 0.2), transparent), linear-gradient(180deg, hsla(0, 0%, 100%, 0.1), hsla(0, 0%, 100%, 0)), rgba(26, 112, 96, 1);
 }
 
 div#cheese-chat-list-container > div.cheese-chat-row.tier3 {
-    background: linear-gradient(270deg, rgba(0,0,0,.2), transparent), linear-gradient(180deg, hsla(0, 0%, 100%, 0.1), hsla(0, 0%, 100%, 0)), rgba(207, 154, 18, 1);
+    background: linear-gradient(270deg, rgba(0, 0, 0, 0.2), transparent), linear-gradient(180deg, hsla(0, 0%, 100%, 0.1), hsla(0, 0%, 100%, 0)), rgba(207, 154, 18, 1);
+}
+
+div#cheese-chat-list-container > div.cheese-chat-row.tier4 {
+    background: linear-gradient(270deg, rgba(0, 0, 0, 0.2), transparent), linear-gradient(180deg, hsla(0, 0%, 100%, .1) ,hsla(0, 0%, 100%, 0)), rgba(193, 52, 61, 1);
 }
 
 div#cheese-chat-list-container > div.cheese-chat-row > div {
