@@ -14,7 +14,7 @@ export interface ChazzyProps {
     chzzkChatChannelId: string;
     chzzkAccessToken: string;
     twitchChatChannelId: string;
-    twitchBadges: Record<string, Record<string, string>>[];
+    twitchBadges: Record<string, Record<string, string>>;
 }
 
 export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChatChannelId, twitchBadges}: ChazzyProps): ReactElement {

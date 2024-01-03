@@ -10,7 +10,7 @@ const emojiRegex = /([^ ]+)/
 
 interface Props {
     chatChannelId: string;
-    badges: Record<string, Record<string, string>>[];
+    badges: Record<string, Record<string, string>>;
     onClearMessage?(clearMessage: ClearMessage): void;
 }
 

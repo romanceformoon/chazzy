@@ -47,7 +47,7 @@ export default async function ChazzyPage({params: {channelId}}): Promise<ReactEl
             },
             signal
         }
-    ).then(r => r.json()).then(data => data.data)
+    ).then(r => r.json()).then(data => data['data'] ?? [])
 
     const broadcasterBadges = await fetch(
         `https://api.twitch.tv/helix/chat/badges?broadcaster_id=${twitchBroadcasterId}`,
@@ -59,12 +59,23 @@ export default async function ChazzyPage({params: {channelId}}): Promise<ReactEl
             },
             signal
         }
-    ).then(r => r.json()).then(data => data.data)
+    ).then(r => r.json()).then(data => data['data'] ?? [])
+
+    const badgeSetIds = new Set([...globalBadges, ...broadcasterBadges].map((badge): string => badge.set_id))
 
     const twitchBadges = Object.fromEntries(
-        [...globalBadges, ...broadcasterBadges].map((badge) => [
-            badge.set_id,
-            Object.fromEntries(badge.versions.map((version) => [version.id, version.image_url_4x]))
+        Array.from(badgeSetIds).map((setId) => [
+            setId,
+            Object.fromEntries(
+                [
+                    globalBadges.find((badge) => badge.set_id === setId),
+                    broadcasterBadges.find((badge) => badge.set_id === setId),
+                ].map(
+                    (badge): [string, string][] => (
+                        badge != null ? badge.versions.map((version) => [version.id, version.image_url_4x]) : []
+                    )
+                ).flat()
+            )
         ])
     )
 
