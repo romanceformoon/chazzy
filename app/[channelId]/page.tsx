@@ -33,7 +33,9 @@ export default async function ChazzyPage({params: {channelId}}): Promise<ReactEl
             },
             signal
         }
-    ).then(r => r.json()).then(data => data.data[0].id)
+    ).then(r => r.json()).then(data => data['data']?.[0]?.['id'])
+
+    if (twitchBroadcasterId == null) return notFound()
 
     const globalBadges = await fetch(
         "https://api.twitch.tv/helix/chat/badges/global",
