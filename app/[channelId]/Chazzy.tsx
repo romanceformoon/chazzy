@@ -142,7 +142,9 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
     }, [cheeseChatList])
 
     const reversedCheeseChatList = useMemo(() => {
-        const copied = [...cheeseChatList]
+        const copied = cheeseChatList.filter(
+            (cheeseChat) => new Date().getTime() - cheeseChat.time < 60 * 5 * 1000
+        )
         copied.reverse()
         return copied
     }, [cheeseChatList])
