@@ -201,5 +201,9 @@ export default function useChzzkChatList(props: Props) {
         }
     }, [])
 
-    return {pendingChatListRef, pendingCheeseChatListRef}
+    const refreshWebSocket = useCallback(() => {
+        setWebSocketBuster(new Date().getTime())
+    }, [])
+
+    return {pendingChatListRef, pendingCheeseChatListRef, refreshWebSocket}
 }
