@@ -16,6 +16,7 @@ interface Props {
 
 export default function useTwitchChatList(props: Props) {
     const {chatChannelId, badges, onClearMessage} = props
+    const isRefreshingRef = useRef<boolean>(false)
     const isUnloadingRef = useRef<boolean>(false)
     const pendingChatListRef = useRef<Chat[]>([])
     const [webSocketBuster, setWebSocketBuster] = useState<number>(0)
@@ -94,10 +95,11 @@ export default function useTwitchChatList(props: Props) {
             ws.send("CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands")
             ws.send("PASS SCHMOOPIIE")
             ws.send(`NICK justinfan${75837 + Math.floor(Math.random() * 10000)}`);
+            isRefreshingRef.current = false
         }
 
         ws.onclose = () => {
-            if (!isUnloadingRef.current) {
+            if (!isUnloadingRef.current && !isRefreshingRef.current) {
                 setTimeout(() => setWebSocketBuster(new Date().getTime()), 1000)
             }
         }
@@ -157,6 +159,7 @@ export default function useTwitchChatList(props: Props) {
     }, [chatChannelId, convertChat, onClearMessage])
 
     useEffect(() => {
+        isRefreshingRef.current = true
         return connectTwitch()
     }, [connectTwitch, webSocketBuster])
 

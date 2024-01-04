@@ -21,6 +21,7 @@ function splitWithSpace(message: string): TextMessagePart[] {
 export default function useChzzkChatList(props: Props) {
     const {chatChannelId, accessToken, onClearMessage} = props
     const isUnloadingRef = useRef<boolean>(false)
+    const isRefreshingRef = useRef<boolean>(false)
     const pendingChatListRef = useRef<Chat[]>([])
     const pendingCheeseChatListRef = useRef<CheeseChat[]>([])
     const [webSocketBuster, setWebSocketBuster] = useState<number>(0)
@@ -113,10 +114,11 @@ export default function useChzzkChatList(props: Props) {
                 svcid: "game",
                 ver: "2"
             }))
+            isRefreshingRef.current = false
         }
 
         ws.onclose = () => {
-            if (!isUnloadingRef.current) {
+            if (!isUnloadingRef.current && !isRefreshingRef.current) {
                 setTimeout(() => setWebSocketBuster(new Date().getTime()), 1000)
             }
         }
@@ -189,6 +191,7 @@ export default function useChzzkChatList(props: Props) {
     }, [accessToken, chatChannelId, convertChat])
 
     useEffect(() => {
+        isRefreshingRef.current = true
         return connectChzzk()
     }, [connectChzzk, webSocketBuster])
 
