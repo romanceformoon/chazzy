@@ -6,6 +6,12 @@ body {
     background-color: rgb(20, 21, 23);
 }
 
+div#chazzy-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+}
 
 div#chat-container {
     flex: 1;
@@ -55,13 +61,6 @@ div#chat-list-container > div.chat-row > span.message > a:hover {
 div#chat-list-container > div.chat-row > span.message > img.emoji {
     height: calc(var(--font-size) * 1.5);
     vertical-align: top;
-}
-
-div#chazzy-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    height: 100dvh;
 }
 
 div#cheese-chat-list-container {
