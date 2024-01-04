@@ -81,8 +81,10 @@ export default async function ChazzyPage({params: {channelId}}): Promise<ReactEl
 
     return (
         <Chazzy
+            chzzkChannelId={chzzkChannelId}
             chzzkChatChannelId={chzzkChatChannelId}
             chzzkAccessToken={chzzkAccessToken}
+            twitchBroadcasterId={twitchBroadcasterId}
             twitchChatChannelId={twitchChannelId}
             twitchBadges={twitchBadges}
         />

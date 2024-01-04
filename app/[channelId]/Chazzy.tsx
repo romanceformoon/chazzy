@@ -5,19 +5,35 @@ import {Chat, ClearMessage} from "../chat/types"
 import useChzzkChatList from "../chat/useChzzkChatList"
 import useMergedList from "../chat/useMergedList"
 import useTwitchChatList from "../chat/useTwitchChatList"
+import {default as useChzzkChannel} from "../chzzk/useChannel"
+import useLiveStatus from "../chzzk/useLiveStatus"
+import {default as useTwitchChannel} from "../twitch/useUser"
+import useStream from "../twitch/useStream"
 import ChatRow from "./ChatRow"
 import CheeseChatRow from "./CheeseChatRow"
 import EmptyCheeseChatRow from "./EmptyCheeseChatRow"
+import Status from "./Status"
 import "./styles.css"
 
 export interface ChazzyProps {
+    chzzkChannelId: string;
     chzzkChatChannelId: string;
     chzzkAccessToken: string;
+    twitchBroadcasterId: string;
     twitchChatChannelId: string;
     twitchBadges: Record<string, Record<string, string>>;
 }
 
-export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChatChannelId, twitchBadges}: ChazzyProps): ReactElement {
+export default function Chazzy(props: ChazzyProps): ReactElement {
+    const {
+        chzzkChannelId,
+        chzzkChatChannelId,
+        chzzkAccessToken,
+        twitchBroadcasterId,
+        twitchChatChannelId,
+        twitchBadges
+    } = props
+
     const isChatAutoScrollEnabledRef = useRef<boolean>(true)
     const chatScrollRef = useRef<HTMLDivElement>(null)
     const endOfChatScrollRef = useRef<HTMLDivElement>(null)
@@ -70,7 +86,8 @@ export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChat
 
     const {
         pendingChatListRef: pendingChzzkChatListRef,
-        pendingCheeseChatListRef
+        pendingCheeseChatListRef,
+        refreshWebSocket
     } = useChzzkChatList({
         chatChannelId: chzzkChatChannelId, accessToken: chzzkAccessToken, onClearMessage: handleClearChzzkMessage
     })
@@ -130,44 +147,78 @@ export default function Chazzy({chzzkChatChannelId, chzzkAccessToken, twitchChat
         return copied
     }, [cheeseChatList])
 
-    return <div id="chazzy-container">
-        <div
-            id="chat-list-container"
-            ref={(ref) => {
-                if (ref == null) return
-                if (chatScrollRef.current != null) {
-                    chatScrollRef.current.removeEventListener("wheel", handleChatScroll)
-                    chatScrollRef.current.removeEventListener("touchmove", handleChatScroll)
-                }
-                ref.addEventListener("wheel", handleChatScroll)
-                ref.addEventListener("touchmove", handleChatScroll)
-                chatScrollRef.current = ref
-            }}
-            style={{flex: 2, height: "100%", overflowY: "scroll"}}
-        >
-            {chatList.map((chat) => (
-                chat && <ChatRow key={chat.uid} {...chat} />
-            ))}
-            <div ref={endOfChatScrollRef}/>
+    const {channel: chzzkChannel} = useChzzkChannel(chzzkChannelId)
+    const {liveStatus} = useLiveStatus(chzzkChannelId)
+    const {user} = useTwitchChannel(twitchBroadcasterId)
+    const {stream} = useStream(twitchBroadcasterId)
+
+    useEffect(() => refreshWebSocket(), [liveStatus?.status, refreshWebSocket])
+
+    return (
+        <div id="chazzy-container">
+            <div id="chat-container">
+                <div
+                    id="chat-list-container"
+                    ref={(ref) => {
+                        if (ref == null) return
+                        if (chatScrollRef.current != null) {
+                            chatScrollRef.current.removeEventListener("wheel", handleChatScroll)
+                            chatScrollRef.current.removeEventListener("touchmove", handleChatScroll)
+                        }
+                        ref.addEventListener("wheel", handleChatScroll)
+                        ref.addEventListener("touchmove", handleChatScroll)
+                        chatScrollRef.current = ref
+                    }}
+                    style={{flex: 2, height: "100%", overflowY: "scroll"}}
+                >
+                    {chatList.map((chat) => (
+                        chat && <ChatRow key={chat.uid} {...chat} />
+                    ))}
+                    <div ref={endOfChatScrollRef}/>
+                </div>
+                <div
+                    id="cheese-chat-list-container"
+                    ref={(ref) => {
+                        if (ref == null) return
+                        if (cheeseChatScrollRef.current != null) {
+                            cheeseChatScrollRef.current.removeEventListener("scroll", handleCheeseChatScroll)
+                        }
+                        ref.addEventListener("scroll", handleCheeseChatScroll)
+                        cheeseChatScrollRef.current = ref
+                    }}
+                    style={cheeseChatStyle}
+                >
+                    {reversedCheeseChatList.length === 0
+                        ? <EmptyCheeseChatRow/>
+                        : reversedCheeseChatList.map((cheeseChat) => (
+                                <CheeseChatRow key={cheeseChat.uid} {...cheeseChat} />
+                            )
+                        )}
+                </div>
+            </div>
+            <div id="status-container">
+                {chzzkChannel != null && (
+                    <Status
+                        provider="chzzk"
+                        channelName={chzzkChannel.channelName}
+                        channelImageUrl={chzzkChannel.channelImageUrl}
+                        concurrentUserCount={liveStatus?.concurrentUserCount}
+                        liveCategoryValue={liveStatus?.liveCategoryValue}
+                        isLive={liveStatus?.status === "OPEN"}
+                    />
+                )}
+                <div style={{width: "1.5px", height: "16px", backgroundColor: "white", opacity: 0.1}}/>
+                {user != null && (
+                    <Status
+                        provider="twitch"
+                        channelName={user.display_name}
+                        channelImageUrl={user.profile_image_url}
+                        concurrentUserCount={stream?.viewer_count}
+                        liveCategoryValue={stream?.game_name}
+                        isLive={stream != null}
+                    />
+                )}
+            </div>
         </div>
-        <div
-            id="cheese-chat-list-container"
-            ref={(ref) => {
-                if (ref == null) return
-                if (cheeseChatScrollRef.current != null) {
-                    cheeseChatScrollRef.current.removeEventListener("scroll", handleCheeseChatScroll)
-                }
-                ref.addEventListener("scroll", handleCheeseChatScroll)
-                cheeseChatScrollRef.current = ref
-            }}
-            style={cheeseChatStyle}
-        >
-            {reversedCheeseChatList.length === 0
-                ? <EmptyCheeseChatRow />
-                : reversedCheeseChatList.map((cheeseChat) => (
-                    <CheeseChatRow key={cheeseChat.uid} {...cheeseChat} />
-                )
-            )}
-        </div>
-    </div>
+    )
 }
