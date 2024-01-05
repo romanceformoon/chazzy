@@ -9,7 +9,7 @@ export default async function ChazzyPage({params: {channelId}}): Promise<ReactEl
     const [chzzkChannelId, twitchChannelId] = channelId.split("-")
 
     const chzzkChatChannelId: string = await fetch(
-        `https://api.chzzk.naver.com/polling/v1/channels/${chzzkChannelId}/live-status`,
+        `https://api.chzzk.naver.com/polling/v2/channels/${chzzkChannelId}/live-status`,
         {signal}
     ).then(r => r.json()).then(data => data['content']?.['chatChannelId'])
 
