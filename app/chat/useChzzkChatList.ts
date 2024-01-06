@@ -169,10 +169,10 @@ export default function useChzzkChatList(props: Props) {
 
                     break
                 case ChatCmd.BLIND:
-                    onClearMessage?.({
+                    setTimeout(() => onClearMessage?.({
                         type: "message",
                         method: {type: "chzzk", userId: json['bdy'].userId}
-                    })
+                    }), 300)
                     break
             }
 
