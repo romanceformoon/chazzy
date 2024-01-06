@@ -8,6 +8,18 @@ const INTERNAL_MAX_LENGTH = 10000
 
 const emojiRegex = /([^ ]+)/
 
+const bitRegex = /^[cC]heer(\d+)$/
+
+const bitEmojis: [number, string, string][] = [
+    [10000, "__CHAZZY_BIT_CHEER_RED__", "https://static-cdn.jtvnw.net/bits/dark/animated/red/4"],
+    [5000, "__CHAZZY_BIT_CHEER_BLUE__", "https://static-cdn.jtvnw.net/bits/dark/animated/blue/4"],
+    [1000, "__CHAZZY_BIT_CHEER_GREEN__", "https://static-cdn.jtvnw.net/bits/dark/animated/green/4"],
+    [100, "__CHAZZY_BIT_CHEER_PURPLE__", "https://static-cdn.jtvnw.net/bits/dark/animated/purple/4"],
+    [1, "__CHAZZY_BIT_CHEER_GRAY__", "https://static-cdn.jtvnw.net/bits/dark/animated/gray/4"]
+]
+
+const bitEmojisObject = Object.fromEntries(bitEmojis.map(([, key, url]) => [key, url]))
+
 interface Props {
     chatChannelId: string;
     badges: Record<string, Record<string, string>>;
@@ -30,6 +42,7 @@ export default function useTwitchChatList(props: Props) {
             : twitchNicknameColors[parseInt(tags["user-id"]) % twitchNicknameColors.length]
         const message = raw["parameters"]
         const emotes = tags["emotes"] ?? {}
+        let bits = parseInt(tags["bits"] ?? '0')
 
         const emoteReplacements: {stringToReplace: string; replacement: EmojiMessagePart}[] = []
 
@@ -47,15 +60,33 @@ export default function useTwitchChatList(props: Props) {
             nickname,
             badges: Object.entries(tags["badges"] ?? []).map(([key, version]: [string, string]) => badges[key][version]),
             color,
-            emojis: Object.fromEntries(
-                Object.keys(emotes).map((key) =>
-                    [key, `https://static-cdn.jtvnw.net/emoticons/v2/${key}/default/dark/4.0`]
+            emojis: {
+                ...bitEmojisObject,
+                ...Object.fromEntries(
+                    Object.keys(emotes).map((key) =>
+                        [key, `https://static-cdn.jtvnw.net/emoticons/v2/${key}/default/dark/4.0`]
+                    )
                 )
-            ),
-            message: message.split(emojiRegex).filter((part) => part !== '').map((part) => {
+            },
+            message: message.split(emojiRegex).filter((part) => part !== '').map((part): MessagePart[] => {
+                if (bits > 0) {
+                    const bitMatch = part.match(bitRegex)
+                    if (bitMatch != null) {
+                        const bit = parseInt(part.match(bitRegex)[1])
+                        for (const [threshold, emojiKey] of bitEmojis) {
+                            if (bit >= threshold && bit >= bits) {
+                                bits -= bit
+                                return [{type: "emoji", emojiKey}, {type: "text", text: ` ${bit}`}]
+                            }
+                        }
+                    }
+                }
                 const emoteIndex = emoteReplacements.findIndex(({stringToReplace}) => stringToReplace === part)
-                return emoteIndex === -1 ? {type: "text", text: part} : emoteReplacements[emoteIndex].replacement
-            })
+                if (emoteIndex === -1) {
+                    return [{type: "text", text: part}]
+                }
+                return [emoteReplacements[emoteIndex].replacement]
+            }).flat()
         }
     }, [badges])
 
