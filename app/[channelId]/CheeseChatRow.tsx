@@ -31,7 +31,7 @@ function CheeseChatRow(props: CheeseChat) {
                             {part.type === "text"
                                 ? urlRegexSafe({exact: true}).test(part.text)
                                     ? <a href={part.text.startsWith('http') ? part.text : `https://${part.text}`} target="_blank">{part.text}</a>
-                                    : <span>{part.text}</span>
+                                    : <>{part.text}</>
                                 : <img className="emoji" alt={part.emojiKey} src={emojis[part.emojiKey]}/>
                             }
                         </Fragment>
