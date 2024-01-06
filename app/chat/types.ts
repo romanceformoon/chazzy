@@ -19,6 +19,8 @@ export interface Chat {
     color: string;
     emojis: Record<string, string>;
     message: MessagePart[];
+    isItalic?: boolean;
+    deletionReason?: string;
 }
 
 export enum ChatCmd {
