@@ -29,19 +29,29 @@ export default function useMergedList<T extends {time: number}>(props: Props<T>)
 
                 setList((prevList) => [...prevList, ...pendingList].slice(-1 * maxLength))
             } else {
-                let targetPendingListRef: MutableRefObject<T[]> | null = null
+                const pendingChatCount = pendingListRefs.reduce(
+                    (count, pendingListRef) => count + pendingListRef.current.length, 0
+                )
+                const newChatCount = pendingChatCount > 10 ? 2 : 1
+                const newChats = []
 
-                pendingListRefs.forEach((pendingListRef) => {
-                    const pendingChat = pendingListRef.current[0]
-                    if (pendingChat == null) return
-                    if (targetPendingListRef == null || pendingChat.time < targetPendingListRef.current[0].time) {
-                        targetPendingListRef = pendingListRef
+                for (let i = 0; i < newChatCount; i++) {
+                    let targetPendingListRef: MutableRefObject<T[]> | null = null
+
+                    pendingListRefs.forEach((pendingListRef) => {
+                        const pendingChat = pendingListRef.current[0]
+                        if (pendingChat == null) return
+                        if (targetPendingListRef == null || pendingChat.time < targetPendingListRef.current[0].time) {
+                            targetPendingListRef = pendingListRef
+                        }
+                    })
+
+                    if (targetPendingListRef != null) {
+                        newChats.push(targetPendingListRef.current.shift())
                     }
-                })
-
-                if (targetPendingListRef != null) {
-                    setList((prevList) => [...prevList, targetPendingListRef.current.shift()].slice(-1 * maxLength))
                 }
+
+                setList((prevList) => [...prevList, ...newChats].slice(-1 * maxLength))
             }
 
             lastSetTimestampRef.current = new Date().getTime()
