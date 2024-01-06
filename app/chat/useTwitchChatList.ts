@@ -2,7 +2,7 @@ import {suggestAAColorVariant} from "accessible-colors"
 import {useCallback, useEffect, useRef, useState} from "react"
 import {backgroundColor, twitchNicknameColors} from "./constants"
 import parseTwitchMessage from "./parseTwitchMessage"
-import {Chat, ClearMessage, EmojiMessagePart} from "./types"
+import {Chat, ClearMessage, EmojiMessagePart, MessagePart} from "./types"
 
 const INTERNAL_MAX_LENGTH = 10000
 
@@ -40,7 +40,9 @@ export default function useTwitchChatList(props: Props) {
         const color = tags["color"] != null
             ? suggestAAColorVariant(tags["color"], backgroundColor)
             : twitchNicknameColors[parseInt(tags["user-id"]) % twitchNicknameColors.length]
-        const message = raw["parameters"]
+        let message: string = raw["parameters"]
+        const isItalic = message.indexOf("\x01ACTION ") !== -1
+        message = message.replace("\x01ACTION ", "").replace("\x01", "")
         const emotes = tags["emotes"] ?? {}
         let bits = parseInt(tags["bits"] ?? '0')
 
@@ -86,7 +88,8 @@ export default function useTwitchChatList(props: Props) {
                     return [{type: "text", text: part}]
                 }
                 return [emoteReplacements[emoteIndex].replacement]
-            }).flat()
+            }).flat(),
+            isItalic
         }
     }, [badges])
 
