@@ -43,29 +43,28 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
     const handleClearChzzkMessage = useCallback((clearMessage: ClearMessage) => {
         setChatList((prevChatList) => {
             const findFn = ({userId}: Chat) => (
-                clearMessage.type === "message" &&  clearMessage.method.type === "chzzk"
-                    ? clearMessage.method.userId === userId
+                clearMessage.type === "message"
+                    ? clearMessage.method.type === "chzzk" && clearMessage.method.userId === userId
                     : false
             )
-            const lastChatOnPendingChatList = pendingChzzkChatListRef.current.findLast(findFn)
-            const lastChatOnChatList = prevChatList.findLast(findFn)
+            const lastIndexOnPendingChatList = pendingChzzkChatListRef.current.findLastIndex(findFn)
+            const lastChatOnPendingChatList = pendingChzzkChatListRef.current[lastIndexOnPendingChatList]
+            const lastIndexOnChatList = prevChatList.findLastIndex(findFn)
+            const lastChatOnChatList = prevChatList[lastIndexOnChatList]
+            const newChatList = [...prevChatList]
             if (lastChatOnPendingChatList == null && lastChatOnChatList != null) {
-                return prevChatList.filter(
-                    ({uid}: Chat) => uid !== lastChatOnChatList.uid
-                )
+                newChatList.splice(lastIndexOnChatList, 1, {...lastChatOnChatList, deletionReason: "클린봇이 부적절한 표현을 감지했습니다."})
+                return newChatList
             } else if (lastChatOnPendingChatList != null && lastChatOnChatList == null) {
-                pendingChzzkChatListRef.current = pendingChzzkChatListRef.current.filter(
-                    ({uid}: Chat) => uid !== lastChatOnPendingChatList.uid
-                )
+                pendingChzzkChatListRef.current.splice(lastIndexOnPendingChatList, 1, {...lastChatOnPendingChatList, deletionReason: "클린봇이 부적절한 표현을 감지했습니다."})
                 return prevChatList
             } else if (lastChatOnPendingChatList != null && lastChatOnChatList != null) {
                 if (lastChatOnChatList.time > lastChatOnPendingChatList.time) {
-                    return prevChatList.filter(
-                        ({uid}: Chat) => uid !== lastChatOnChatList.uid
-                    )
+                    newChatList.splice(lastIndexOnChatList, 1, {...lastChatOnChatList, deletionReason: "클린봇이 부적절한 표현을 감지했습니다."})
+                    return newChatList
                 } else {
-                    pendingChzzkChatListRef.current = pendingChzzkChatListRef.current.filter(
-                        ({uid}: Chat) => uid !== lastChatOnPendingChatList.uid
+                    pendingChzzkChatListRef.current.splice(
+                        lastIndexOnPendingChatList, 1, {...lastChatOnPendingChatList, deletionReason: "클린봇이 부적절한 표현을 감지했습니다."}
                     )
                     return prevChatList
                 }
@@ -75,13 +74,25 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
     },[])
 
     const handleClearTwitchMessage = useCallback((clearMessage: ClearMessage) => {
-        const filterFn = ({uid, userId}: Chat) => (
+        const findFn = ({uid, userId}: Chat) => (
             clearMessage.type === "message"
-                ? clearMessage.method.type !== "twitch" || clearMessage.method.uid !== uid
-                : clearMessage.userId !== userId
+                ? clearMessage.method.type === "twitch" && clearMessage.method.uid === uid
+                : clearMessage.userId === userId
         )
-        setChatList((prevChatList) => prevChatList.filter(filterFn))
-        pendingTwitchChatListRef.current = pendingTwitchChatListRef.current.filter(filterFn)
+        setChatList((prevChatList) => {
+            let isChanged = false
+            const newChatList = prevChatList.map((chat) : Chat => {
+                if (findFn(chat)) {
+                    isChanged = true
+                    return {...chat, isItalic: true, deletionReason: "매니저에 의해 메시지가 삭제됨"}
+                }
+                return chat
+            })
+            return isChanged ? newChatList : prevChatList
+        })
+        pendingTwitchChatListRef.current = pendingTwitchChatListRef.current.map((chat) => (
+            findFn(chat) ? {...chat, isItalic: true, deletionReason: "매니저에 의해 메시지가 삭제됨"} : chat
+        ))
     },[])
 
     const {
