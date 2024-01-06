@@ -114,7 +114,7 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
 
     const {
         list: cheeseChatList
-    } = useMergedList({pendingListRefs: pendingCheeseChatListRefs, maxLength: 5})
+    } = useMergedList({pendingListRefs: pendingCheeseChatListRefs, maxLength: 10})
 
     useEffect(() => {
         if (isChatAutoScrollEnabledRef.current && endOfChatScrollRef.current != null) {
@@ -141,7 +141,7 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
         handleCheeseChatScroll()
     }, [cheeseChatList])
 
-    const reversedCheeseChatList = useMemo(() => {
+    const arrangedCheeseChatList = useMemo(() => {
         const copied = cheeseChatList.filter(
             (cheeseChat) => new Date().getTime() - cheeseChat.time < 60 * 5 * 1000
         )
@@ -190,9 +190,9 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
                     }}
                     style={cheeseChatStyle}
                 >
-                    {reversedCheeseChatList.length === 0
+                    {arrangedCheeseChatList.length === 0
                         ? <EmptyCheeseChatRow/>
-                        : reversedCheeseChatList.map((cheeseChat) => (
+                        : arrangedCheeseChatList.map((cheeseChat) => (
                                 <CheeseChatRow key={cheeseChat.uid} {...cheeseChat} />
                             )
                         )}
