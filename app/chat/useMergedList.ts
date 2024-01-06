@@ -27,7 +27,9 @@ export default function useMergedList<T extends {time: number}>(props: Props<T>)
 
                 pendingList.sort((a, b) => a.time - b.time)
 
-                setList((prevList) => [...prevList, ...pendingList].slice(-1 * maxLength))
+                if (pendingList.length > 0) {
+                    setList((prevList) => [...prevList, ...pendingList].slice(-1 * maxLength))
+                }
             } else {
                 const pendingChatCount = pendingListRefs.reduce(
                     (count, pendingListRef) => count + pendingListRef.current.length, 0
@@ -51,7 +53,9 @@ export default function useMergedList<T extends {time: number}>(props: Props<T>)
                     }
                 }
 
-                setList((prevList) => [...prevList, ...newChats].slice(-1 * maxLength))
+                if (newChats.length > 0) {
+                    setList((prevList) => [...prevList, ...newChats].slice(-1 * maxLength))
+                }
             }
 
             lastSetTimestampRef.current = new Date().getTime()
