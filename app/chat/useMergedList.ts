@@ -34,7 +34,7 @@ export default function useMergedList<T extends {time: number}>(props: Props<T>)
                 const pendingChatCount = pendingListRefs.reduce(
                     (count, pendingListRef) => count + pendingListRef.current.length, 0
                 )
-                const newChatCount = pendingChatCount > 10 ? 2 : 1
+                const newChatCount = pendingChatCount > 20 ? 4 : Math.min(2, pendingChatCount)
                 const newChats = []
 
                 for (let i = 0; i < newChatCount; i++) {
@@ -59,7 +59,7 @@ export default function useMergedList<T extends {time: number}>(props: Props<T>)
             }
 
             lastSetTimestampRef.current = new Date().getTime()
-        }, 75)
+        }, 150)
 
         return () => {
             clearInterval(interval)
