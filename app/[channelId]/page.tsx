@@ -8,18 +8,6 @@ export default async function ChazzyPage({params: {channelId}}): Promise<ReactEl
     const {signal} = new AbortController()
     const [chzzkChannelId, twitchChannelId] = channelId.split("-")
 
-    const chzzkChatChannelId: string = await fetch(
-        `https://api.chzzk.naver.com/polling/v2/channels/${chzzkChannelId}/live-status`,
-        {signal}
-    ).then(r => r.json()).then(data => data['content']?.['chatChannelId'])
-
-    if (!chzzkChatChannelId) return notFound()
-
-    const chzzkAccessToken: string = await fetch(
-        `https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${chzzkChatChannelId}&chatType=STREAMING`,
-        {signal}
-    ).then(r => r.json()).then(data => data['content']['accessToken'])
-
     const twitchClientId = process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID
     const twitchAccessToken = process.env.NEXT_PUBLIC_TWITCH_ACCESS_TOKEN
 
@@ -82,8 +70,6 @@ export default async function ChazzyPage({params: {channelId}}): Promise<ReactEl
     return (
         <Chazzy
             chzzkChannelId={chzzkChannelId}
-            chzzkChatChannelId={chzzkChatChannelId}
-            chzzkAccessToken={chzzkAccessToken}
             twitchBroadcasterId={twitchBroadcasterId}
             twitchChatChannelId={twitchChannelId}
             twitchBadges={twitchBadges}

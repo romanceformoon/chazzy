@@ -5,9 +5,10 @@ import {Chat, ClearMessage} from "../chat/types"
 import useChzzkChatList from "../chat/useChzzkChatList"
 import useMergedList from "../chat/useMergedList"
 import useTwitchChatList from "../chat/useTwitchChatList"
-import {default as useChzzkChannel} from "../chzzk/useChannel"
+import useAccessToken from "../chzzk/useAccessToken"
+import useChzzkChannel from "../chzzk/useChannel"
 import useLiveStatus from "../chzzk/useLiveStatus"
-import {default as useTwitchChannel} from "../twitch/useUser"
+import useTwitchUser from "../twitch/useUser"
 import useStream from "../twitch/useStream"
 import ChatRow from "./ChatRow"
 import CheeseChatRow from "./CheeseChatRow"
@@ -17,8 +18,6 @@ import "./styles.css"
 
 export interface ChazzyProps {
     chzzkChannelId: string;
-    chzzkChatChannelId: string;
-    chzzkAccessToken: string;
     twitchBroadcasterId: string;
     twitchChatChannelId: string;
     twitchBadges: Record<string, Record<string, string>>;
@@ -27,8 +26,6 @@ export interface ChazzyProps {
 export default function Chazzy(props: ChazzyProps): ReactElement {
     const {
         chzzkChannelId,
-        chzzkChatChannelId,
-        chzzkAccessToken,
         twitchBroadcasterId,
         twitchChatChannelId,
         twitchBadges
@@ -39,6 +36,13 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
     const endOfChatScrollRef = useRef<HTMLDivElement>(null)
     const cheeseChatScrollRef = useRef<HTMLDivElement>(null)
     const [cheeseChatStyle, setCheeseChatStyle] = useState<CSSProperties>(undefined)
+
+    const {channel: chzzkChannel} = useChzzkChannel(chzzkChannelId)
+    const {liveStatus} = useLiveStatus(chzzkChannelId)
+    const {accessToken: chzzkAccessToken} = useAccessToken(liveStatus?.chatChannelId)
+
+    const {user} = useTwitchUser(twitchBroadcasterId)
+    const {stream} = useStream(twitchBroadcasterId)
 
     const handleClearChzzkMessage = useCallback((clearMessage: ClearMessage) => {
         setChatList((prevChatList) => {
@@ -98,9 +102,8 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
     const {
         pendingChatListRef: pendingChzzkChatListRef,
         pendingCheeseChatListRef,
-        refreshWebSocket
     } = useChzzkChatList({
-        chatChannelId: chzzkChatChannelId, accessToken: chzzkAccessToken, onClearMessage: handleClearChzzkMessage
+        chatChannelId: liveStatus?.chatChannelId, accessToken: chzzkAccessToken, onClearMessage: handleClearChzzkMessage
     })
     const {
         pendingChatListRef: pendingTwitchChatListRef
@@ -159,13 +162,6 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
         copied.reverse()
         return copied
     }, [cheeseChatList])
-
-    const {channel: chzzkChannel} = useChzzkChannel(chzzkChannelId)
-    const {liveStatus} = useLiveStatus(chzzkChannelId)
-    const {user} = useTwitchChannel(twitchBroadcasterId)
-    const {stream} = useStream(twitchBroadcasterId)
-
-    useEffect(() => refreshWebSocket(), [liveStatus?.status, refreshWebSocket])
 
     return (
         <div id="chazzy-container">

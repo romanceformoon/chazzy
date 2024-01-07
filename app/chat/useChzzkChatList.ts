@@ -7,8 +7,8 @@ const INTERNAL_MAX_LENGTH = 10000
 const emojiRegex = /{:([a-zA-Z0-9_]+):}/
 
 interface Props {
-    chatChannelId: string;
-    accessToken: string;
+    chatChannelId?: string;
+    accessToken?: string;
     onClearMessage?(clearMessage: ClearMessage): void;
 }
 
@@ -66,6 +66,10 @@ export default function useChzzkChatList(props: Props) {
     }, [])
 
     const connectChzzk = useCallback(() => {
+        if (chatChannelId == null || accessToken == null) {
+            return () => {}
+        }
+
         const ws = new WebSocket("wss://kr-ss1.chat.naver.com/chat")
 
         const worker = new Worker(
@@ -201,9 +205,5 @@ export default function useChzzkChatList(props: Props) {
         }
     }, [])
 
-    const refreshWebSocket = useCallback(() => {
-        setWebSocketBuster(new Date().getTime())
-    }, [])
-
-    return {pendingChatListRef, pendingCheeseChatListRef, refreshWebSocket}
+    return {pendingChatListRef, pendingCheeseChatListRef}
 }

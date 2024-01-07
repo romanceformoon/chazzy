@@ -8,7 +8,7 @@ export default function useChannel(channelId: string) {
         (async () => {
             await fetch(
                 // Use proxy API backend
-                `https://chzzk.aioo.ooo/service/v1/channels/${channelId}`,
+                `https://api.chzzk.naver.com.proxy.aioo.ooo/service/v1/channels/${channelId}`,
             ).then(
                 (response) => response.json()
             ).then(
