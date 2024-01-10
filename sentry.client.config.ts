@@ -22,6 +22,11 @@ Sentry.init({
   // You can remove this option if you're not planning to use the Sentry Session Replay feature:
   integrations: [
     new Sentry.Replay({
+      networkDetailAllowUrls: [
+          /https:\/\/api.chzzk.naver.com.proxy.aioo.ooo\/polling\/v2\/channels\/[0-9a-f]{32}\/live-status/,
+          "https://api.twitch.tv/helix/streams",
+          "https://comm-api.game.naver.com.proxy.aioo.ooo/nng_main/v1/chats/access-token",
+      ],
       // Additional Replay configuration goes in here, for example:
       maskAllText: true,
       blockAllMedia: true,
