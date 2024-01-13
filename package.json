@@ -1,28 +1,34 @@
 {
-    "name": "chzzk-overlay",
-    "version": "0.1.0",
-    "private": true,
-    "scripts": {
-        "dev": "next dev",
-        "build": "next build",
-        "start": "next start",
-        "lint": "next lint"
-    },
-    "dependencies": {
-        "@sentry/nextjs": "^7.91.0",
-        "@vercel/analytics": "^1.1.1",
-        "accessible-colors": "^1.0.5",
-        "clsx": "^2.0.0",
-        "next": "14.0.4",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "url-regex-safe": "^4.0.0"
-    },
-    "devDependencies": {
-        "@types/node": "^20.10.5",
-        "@types/obs-studio": "^2.17.2",
-        "@types/react": "^18.2.45",
-        "@types/react-dom": "^18.2.18",
-        "typescript": "^5.3.3"
-    }
+  "name": "chzzk-overlay",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@sentry/nextjs": "^7.91.0",
+    "@vercel/analytics": "^1.1.1",
+    "accessible-colors": "^1.0.5",
+    "clsx": "^2.0.0",
+    "next": "14.0.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "url-regex-safe": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "@types/obs-studio": "^2.17.2",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "@typescript-eslint/eslint-plugin": "^6.18.1",
+    "@typescript-eslint/parser": "^6.18.1",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-prettier": "5.1.3",
+    "prettier": "3.2.1",
+    "typescript": "^5.3.3"
+  }
 }
