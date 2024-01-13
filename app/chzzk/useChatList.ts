@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { captureException, setContext } from '@sentry/nextjs';
 import { Chat, CheeseChat, ClearMessage, MessagePart, TextMessagePart } from '../chat/types';
 import { nicknameColors } from './constants';
 import { Chat as ChzzkChat, ChatCmd, Extras, Message, MessageTypeCode, Profile } from './types';
@@ -163,13 +164,22 @@ export default function useChatList(
                 if (chat.msgTypeCode !== MessageTypeCode.CHAT && chat.msgTypeCode !== MessageTypeCode.CHEESE_CHAT) {
                   return false;
                 }
-                // FIXME: profile이 null로 들어오는 경우가 있어서 임시로 처리함
-                if (chat['profile'] === 'null') {
-                  return false;
-                }
                 return true;
               })
-              .map(convertChat)
+              .map((chzzkChat) => {
+                let chat: {
+                  chat: Chat;
+                  payAmount: number | undefined;
+                } | null = null;
+                try {
+                  chat = convertChat(chzzkChat);
+                } catch (e: unknown) {
+                  setContext('WebSocket Message', json);
+                  captureException(e);
+                }
+                return chat;
+              })
+              .filter((chat) => chat != null);
 
             const chatList = chats.filter(({ payAmount }) => payAmount == null).map(({ chat }) => chat);
 
