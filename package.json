@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@floating-ui/react": "^0.26.5",
     "@sentry/nextjs": "^7.91.0",
     "@vercel/analytics": "^1.1.1",
     "accessible-colors": "^1.0.5",

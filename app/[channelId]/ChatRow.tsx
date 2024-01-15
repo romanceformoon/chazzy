@@ -29,8 +29,10 @@ function ChatRow(props: Chat) {
                   ) : (
                     <>{part.text}</>
                   )
-                ) : (
+                ) : part.type === 'emoji' ? (
                   <img className="emoji" alt={part.emojiKey} src={emojis[part.emojiKey]} />
+                ) : (
+                  <img className="sticker" alt="sticker" src={part.url} />
                 )}
               </Fragment>
             ))}

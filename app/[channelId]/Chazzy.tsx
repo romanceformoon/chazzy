@@ -1,9 +1,11 @@
 'use client';
 
 import { CSSProperties, ReactElement, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import useAfreecatvStation from '../afreecatv/useStation';
+import useAfreecatvChatList from '../afreecatv/useChatList';
+import useAfreecatvChannel from '../afreecatv/useChannel';
 import { Chat, ClearMessage } from '../chat/types';
 import useMergedList from '../chat/useMergedList';
-import useAccessToken from '../chzzk/useAccessToken';
 import useChzzkChatList from '../chzzk/useChatList';
 import useChzzkChannel from '../chzzk/useChannel';
 import useLiveStatus from '../chzzk/useLiveStatus';
@@ -11,20 +13,20 @@ import useTwitchChatList from '../twitch/useChatList';
 import useTwitchUser from '../twitch/useUser';
 import useStream from '../twitch/useStream';
 import ChatRow from './ChatRow';
+import ChazzyMenu from './ChazzyMenu';
 import CheeseChatRow from './CheeseChatRow';
 import EmptyCheeseChatRow from './EmptyCheeseChatRow';
 import Status from './Status';
 import './styles.css';
 
 export interface ChazzyProps {
-  chzzkChannelId: string;
-  twitchBroadcasterId: string;
-  twitchChatChannelId: string;
-  twitchBadges: Record<string, Record<string, string>>;
+  afreecatvChannelId: string | undefined;
+  chzzkChannelId: string | undefined;
+  twitchChannelId: string | undefined;
 }
 
 export default function Chazzy(props: ChazzyProps): ReactElement {
-  const { chzzkChannelId, twitchBroadcasterId, twitchChatChannelId, twitchBadges } = props;
+  const { afreecatvChannelId, chzzkChannelId, twitchChannelId } = props;
 
   const isChatAutoScrollEnabledRef = useRef<boolean>(true);
   const chatScrollRef = useRef<HTMLDivElement>(null);
@@ -34,10 +36,15 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
 
   const { channel: chzzkChannel } = useChzzkChannel(chzzkChannelId);
   const { liveStatus: chzzkLiveStatus } = useLiveStatus(chzzkChannelId);
-  const { accessToken: chzzkAccessToken } = useAccessToken(chzzkLiveStatus?.chatChannelId);
 
-  const { user: twitchUser } = useTwitchUser(twitchBroadcasterId);
-  const { stream: twitchStream } = useStream(twitchBroadcasterId);
+  const { user: twitchUser } = useTwitchUser(twitchChannelId);
+  const { stream: twitchStream } = useStream(twitchUser?.id);
+
+  const { station: afreecatvStation } = useAfreecatvStation(afreecatvChannelId);
+  const { channel: afreecatvChannel } = useAfreecatvChannel(
+    afreecatvChannelId,
+    afreecatvStation?.broad != null ? `${afreecatvStation?.broad.broad_no}` : undefined,
+  );
 
   const handleClearChzzkMessage = useCallback((clearMessage: ClearMessage) => {
     setChatList((prevChatList) => {
@@ -112,20 +119,20 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
     );
   }, []);
 
+  const { pendingChatListRef: pendingAfreecatvChatListRef } = useAfreecatvChatList(afreecatvChannel);
   const { pendingChatListRef: pendingChzzkChatListRef, pendingCheeseChatListRef } = useChzzkChatList(
     chzzkLiveStatus?.chatChannelId,
-    chzzkAccessToken,
     handleClearChzzkMessage,
   );
   const { pendingChatListRef: pendingTwitchChatListRef } = useTwitchChatList(
-    twitchChatChannelId,
-    twitchBadges,
+    twitchChannelId,
+    twitchUser?.id,
     handleClearTwitchMessage,
   );
 
   const pendingChatListRefs = useMemo(
-    () => [pendingChzzkChatListRef, pendingTwitchChatListRef],
-    [pendingChzzkChatListRef, pendingTwitchChatListRef],
+    () => [pendingAfreecatvChatListRef, pendingChzzkChatListRef, pendingTwitchChatListRef],
+    [pendingAfreecatvChatListRef, pendingChzzkChatListRef, pendingTwitchChatListRef],
   );
 
   const pendingCheeseChatListRefs = useMemo(() => [pendingCheeseChatListRef], [pendingCheeseChatListRef]);
@@ -193,47 +200,68 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
           {chatList.map((chat) => chat && <ChatRow key={chat.uid} {...chat} />)}
           <div ref={endOfChatScrollRef} />
         </div>
-        <div
-          id="cheese-chat-list-container"
-          ref={(ref) => {
-            if (ref == null) return;
-            if (cheeseChatScrollRef.current != null) {
-              cheeseChatScrollRef.current.removeEventListener('scroll', handleCheeseChatScroll);
-            }
-            ref.addEventListener('scroll', handleCheeseChatScroll);
-            cheeseChatScrollRef.current = ref;
-          }}
-          style={cheeseChatStyle}
-        >
-          {arrangedCheeseChatList.length === 0 ? (
-            <EmptyCheeseChatRow />
-          ) : (
-            arrangedCheeseChatList.map((cheeseChat) => <CheeseChatRow key={cheeseChat.uid} {...cheeseChat} />)
-          )}
-        </div>
+        {chzzkChannelId != null && (
+          <div
+            id="cheese-chat-list-container"
+            ref={(ref) => {
+              if (ref == null) return;
+              if (cheeseChatScrollRef.current != null) {
+                cheeseChatScrollRef.current.removeEventListener('scroll', handleCheeseChatScroll);
+              }
+              ref.addEventListener('scroll', handleCheeseChatScroll);
+              cheeseChatScrollRef.current = ref;
+            }}
+            style={cheeseChatStyle}
+          >
+            {arrangedCheeseChatList.length === 0 ? (
+              <EmptyCheeseChatRow />
+            ) : (
+              arrangedCheeseChatList.map((cheeseChat) => <CheeseChatRow key={cheeseChat.uid} {...cheeseChat} />)
+            )}
+          </div>
+        )}
       </div>
       <div id="status-container">
-        {chzzkChannel != null && (
-          <Status
-            provider="chzzk"
-            channelName={chzzkChannel.channelName}
-            channelImageUrl={chzzkChannel.channelImageUrl}
-            concurrentUserCount={chzzkLiveStatus?.concurrentUserCount}
-            liveCategoryValue={chzzkLiveStatus?.liveCategoryValue}
-            isLive={chzzkLiveStatus?.status === 'OPEN'}
-          />
+        {chzzkChannelId != null && chzzkChannel != null && (
+          <>
+            <Status
+              provider="chzzk"
+              channelName={chzzkChannel.channelName}
+              channelImageUrl={chzzkChannel.channelImageUrl}
+              concurrentUserCount={chzzkLiveStatus?.concurrentUserCount}
+              liveCategoryValue={chzzkLiveStatus?.liveCategoryValue}
+              isLive={chzzkLiveStatus?.status === 'OPEN'}
+            />
+            <div className="divider" />
+          </>
         )}
-        <div className="divider" />
-        {twitchUser != null && (
-          <Status
-            provider="twitch"
-            channelName={twitchUser.display_name}
-            channelImageUrl={twitchUser.profile_image_url}
-            concurrentUserCount={twitchStream?.viewer_count}
-            liveCategoryValue={twitchStream?.game_name}
-            isLive={twitchStream != null}
-          />
+        {twitchChannelId != null && twitchUser != null && (
+          <>
+            <Status
+              provider="twitch"
+              channelName={twitchUser.display_name}
+              channelImageUrl={twitchUser.profile_image_url}
+              concurrentUserCount={twitchStream?.viewer_count}
+              liveCategoryValue={twitchStream?.game_name}
+              isLive={twitchStream != null}
+            />
+            <div className="divider" />
+          </>
         )}
+        {afreecatvChannelId != null && afreecatvStation != null && (
+          <>
+            <Status
+              provider="afreecatv"
+              channelName={afreecatvStation.station.user_nick}
+              channelImageUrl={afreecatvStation.profile_image}
+              concurrentUserCount={afreecatvStation.broad?.current_sum_viewer}
+              liveCategoryValue={afreecatvStation.broad?.broad_title}
+              isLive={afreecatvStation.broad != null}
+            />
+            <div className="divider" />
+          </>
+        )}
+        <ChazzyMenu />
       </div>
     </div>
   );

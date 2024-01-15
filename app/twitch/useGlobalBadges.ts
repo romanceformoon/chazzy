@@ -1,30 +1,28 @@
 import { useEffect, useState } from 'react';
-import { User } from './types';
+import { Badge } from './types';
 
-export default function useUser(channelId: string | undefined) {
-  const [user, setUser] = useState<User>(undefined);
+export default function useGlobalBadges(enabled: boolean) {
+  const [badges, setBadges] = useState<Badge[]>([]);
 
   const twitchClientId = process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID;
   const twitchAccessToken = process.env.NEXT_PUBLIC_TWITCH_ACCESS_TOKEN;
 
   useEffect(() => {
-    if (channelId == null) {
+    if (!enabled) {
       return;
     }
     void (async () => {
-      await fetch(`https://api.twitch.tv/helix/users?login=${channelId}`, {
+      await fetch('https://api.twitch.tv/helix/chat/badges/global', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${twitchAccessToken}`,
           'Client-Id': twitchClientId,
         },
       })
-        .then((response) => response.json() as Promise<{ data: User[] }>)
-        .then((data) => {
-          setUser(data['data']?.[0]);
-        });
+        .then((r) => r.json() as Promise<{ data: Badge[] }>)
+        .then((data) => setBadges(data.data ?? []));
     })();
-  }, [channelId]);
+  }, []);
 
-  return { user };
+  return { badges };
 }

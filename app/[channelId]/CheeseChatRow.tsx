@@ -36,9 +36,9 @@ function CheeseChatRow(props: CheeseChat) {
                 ) : (
                   <>{part.text}</>
                 )
-              ) : (
+              ) : part.type === 'emoji' ? (
                 <img className="emoji" alt={part.emojiKey} src={emojis[part.emojiKey]} />
-              )}
+              ) : null}
             </Fragment>
           ))}
         </span>

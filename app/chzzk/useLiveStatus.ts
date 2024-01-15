@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { LiveStatus } from './types';
 
-export default function useLiveStatus(channelId: string) {
+export default function useLiveStatus(channelId: string | undefined) {
   const [liveStatus, setLiveStatus] = useState<LiveStatus>(undefined);
 
   useEffect(() => {
+    if (channelId == null) {
+      return;
+    }
     const fn = async () => {
       await fetch(
         // Use proxy API backend

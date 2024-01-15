@@ -8,7 +8,12 @@ export interface EmojiMessagePart {
   emojiKey: string;
 }
 
-export type MessagePart = TextMessagePart | EmojiMessagePart;
+export interface StickerMessagePart {
+  type: 'sticker';
+  url: string;
+}
+
+export type MessagePart = TextMessagePart | EmojiMessagePart | StickerMessagePart;
 
 export interface Chat {
   uid: string;

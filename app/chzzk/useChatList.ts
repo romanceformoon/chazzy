@@ -3,6 +3,7 @@ import { captureException, setContext } from '@sentry/nextjs';
 import { Chat, CheeseChat, ClearMessage, MessagePart, TextMessagePart } from '../chat/types';
 import { nicknameColors } from './constants';
 import { Chat as ChzzkChat, ChatCmd, Extras, Message, MessageTypeCode, Profile } from './types';
+import useAccessToken from '@/app/chzzk/useAccessToken';
 
 const INTERNAL_MAX_LENGTH = 10000;
 
@@ -16,8 +17,7 @@ function splitWithSpace(message: string): TextMessagePart[] {
 }
 
 export default function useChatList(
-  chatChannelId?: string,
-  accessToken?: string,
+  chatChannelId: string | undefined,
   onClearMessage?: (clearMessage: ClearMessage) => void,
 ) {
   const isUnloadingRef = useRef<boolean>(false);
@@ -25,6 +25,8 @@ export default function useChatList(
   const pendingChatListRef = useRef<Chat[]>([]);
   const pendingCheeseChatListRef = useRef<CheeseChat[]>([]);
   const [webSocketBuster, setWebSocketBuster] = useState<number>(0);
+
+  const { accessToken: accessToken } = useAccessToken(chatChannelId);
 
   const convertChat = useCallback((chzzkChat: ChzzkChat): { chat: Chat; payAmount: number | undefined } => {
     const profile = JSON.parse(chzzkChat.profile) as Profile;

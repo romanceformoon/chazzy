@@ -35,7 +35,7 @@ export default function useMergedList<T extends { time: number }>(props: Props<T
           (count, pendingListRef) => count + pendingListRef.current.length,
           0,
         );
-        const newChatCount = pendingChatCount > 20 ? 4 : Math.min(2, pendingChatCount);
+        const newChatCount = 2 ** (Math.floor(pendingChatCount / 10) + 1);
         const newChats: T[] = [];
 
         for (let i = 0; i < newChatCount; i++) {

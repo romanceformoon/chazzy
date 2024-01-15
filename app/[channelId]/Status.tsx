@@ -1,6 +1,6 @@
-import { memo, ReactElement } from 'react';
+import { memo, ReactElement, useMemo } from 'react';
 
-type Provider = 'chzzk' | 'twitch';
+type Provider = 'chzzk' | 'twitch' | 'afreecatv';
 
 interface Props {
   provider: Provider;
@@ -14,7 +14,16 @@ interface Props {
 function Status(props: Props): ReactElement {
   const { provider, channelName, channelImageUrl, liveCategoryValue, concurrentUserCount, isLive } = props;
 
-  const ringColor = provider === 'chzzk' ? '#00ffa3,#027f80' : '#bf94ff,#772ce8';
+  const ringColor = useMemo(() => {
+    switch (provider) {
+      case 'chzzk':
+        return '#00ffa3,#027f80';
+      case 'twitch':
+        return '#bf94ff,#772ce8';
+      case 'afreecatv':
+        return '#6694ff,#2266ff';
+    }
+  }, [provider]);
 
   return (
     <div className="status">

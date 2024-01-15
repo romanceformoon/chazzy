@@ -7,7 +7,6 @@ export default function useAccessToken(chatChannelId?: string) {
     if (chatChannelId == null) {
       return;
     }
-
     void (async () => {
       await fetch(
         // Use proxy API backend

@@ -1,10 +1,12 @@
 import { suggestAAColorVariant } from 'accessible-colors';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { backgroundColor } from '../chat/constants';
 import { Chat, ClearMessage, EmojiMessagePart, MessagePart } from '../chat/types';
 import { nicknameColors } from './constants';
 import parseMessage from './parser/parseMessage.mjs';
 import { Message as TwitchMessage } from './types';
+import useGlobalBadges from '@/app/twitch/useGlobalBadges';
+import useBroadcasterBadges from '@/app/twitch/useBroadcasterBadges';
 
 const INTERNAL_MAX_LENGTH = 10000;
 
@@ -23,14 +25,37 @@ const bitEmojis: [number, string, string][] = [
 const bitEmojisObject = Object.fromEntries(bitEmojis.map(([, key, url]) => [key, url]));
 
 export default function useChatList(
-  chatChannelId: string,
-  badges: Record<string, Record<string, string>>,
-  onClearMessage: (clearMessage: ClearMessage) => void,
+  channelId: string | undefined,
+  broadcasterId: string | undefined,
+  onClearMessage?: (clearMessage: ClearMessage) => void,
 ) {
   const isRefreshingRef = useRef<boolean>(false);
   const isUnloadingRef = useRef<boolean>(false);
   const pendingChatListRef = useRef<Chat[]>([]);
   const [webSocketBuster, setWebSocketBuster] = useState<number>(0);
+
+  const { badges: globalBadges } = useGlobalBadges(channelId != null);
+  const { badges: broadcasterBadges } = useBroadcasterBadges(broadcasterId);
+
+  const badges = useMemo(() => {
+    const badgeSetIds = new Set([...globalBadges, ...broadcasterBadges].map((badge): string => badge.set_id));
+
+    return Object.fromEntries(
+      Array.from(badgeSetIds).map((setId) => [
+        setId,
+        Object.fromEntries(
+          [
+            globalBadges.find((badge) => badge.set_id === setId),
+            broadcasterBadges.find((badge) => badge.set_id === setId),
+          ]
+            .map((badge): [string, string][] =>
+              badge != null ? badge.versions.map((version) => [version.id, version.image_url_4x]) : [],
+            )
+            .flat(),
+        ),
+      ]),
+    );
+  }, [globalBadges, broadcasterBadges]);
 
   const convertChat = useCallback(
     (twitchMessage: TwitchMessage): Chat => {
@@ -111,6 +136,10 @@ export default function useChatList(
   );
 
   const connectTwitch = useCallback(() => {
+    if (channelId == null || broadcasterId == null) {
+      return () => {};
+    }
+
     const ws = new WebSocket('wss://irc-ws.chat.twitch.tv');
 
     const worker = new Worker(
@@ -118,24 +147,24 @@ export default function useChatList(
         new Blob(
           [
             `
-                let timeout = null
+              let timeout = null
 
-                onmessage = (e) => {
-                    if (e.data === "startPingTimer") {
-                        if (timeout != null) {
-                            clearTimeout(timeout)
-                        }
-                        timeout = setTimeout(function reservePing() {
-                            postMessage("ping")
-                            timeout = setTimeout(reservePing, 20000)
-                        }, 20000)
-                    }
-                    if (e.data === "stop") {
-                        if (timeout != null) {
-                            clearTimeout(timeout)
-                        }
-                    }
+              onmessage = (e) => {
+                if (e.data === "startPingTimer") {
+                  if (timeout != null) {
+                    clearTimeout(timeout)
+                  }
+                  timeout = setTimeout(function reservePing() {
+                    postMessage("ping")
+                    timeout = setTimeout(reservePing, 20000)
+                  }, 20000)
                 }
+                if (e.data === "stop") {
+                  if (timeout != null) {
+                    clearTimeout(timeout)
+                  }
+                }
+              }
             `,
           ],
           { type: 'application/javascript' },
@@ -198,7 +227,7 @@ export default function useChatList(
             ws.send('PONG');
             break;
           case '001':
-            ws.send(`JOIN #${chatChannelId}`);
+            ws.send(`JOIN #${channelId}`);
             break;
         }
 
@@ -215,7 +244,7 @@ export default function useChatList(
       worker.terminate();
       ws.close();
     };
-  }, [chatChannelId, convertChat, onClearMessage]);
+  }, [channelId, convertChat, onClearMessage]);
 
   useEffect(() => {
     isRefreshingRef.current = true;

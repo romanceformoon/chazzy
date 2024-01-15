@@ -41,12 +41,22 @@ div#chat-list-container > div.chat-row > span.timestamp {
 div#chat-list-container > div.chat-row > img.badge {
   height: var(--font-size);
   padding-top: calc(var(--font-size) * 0.25);
-  padding-right: 8px;
+  padding-right: 6px;
+  vertical-align: top;
+  object-fit: contain;
+}
+
+div#chat-list-container > div.chat-row > span.nickname {
   vertical-align: top;
 }
 
 div#chat-list-container > div.chat-row > span.nickname {
+  vertical-align: top;
   padding-right: 8px;
+}
+
+div#chat-list-container > div.chat-row > span.message {
+  vertical-align: top;
 }
 
 div#chat-list-container > div.chat-row > span.message.italic {
@@ -69,6 +79,11 @@ div#chat-list-container > div.chat-row > span.message > a:hover {
 div#chat-list-container > div.chat-row > span.message > img.emoji {
   height: calc(var(--font-size) * 1.5);
   vertical-align: top;
+}
+
+div#chat-list-container > div.chat-row > span.message > img.sticker {
+  height: calc(var(--font-size) * 3);
+  margin-bottom: calc(var(--font-size) * -0.375);
 }
 
 div#cheese-chat-list-container {
@@ -223,6 +238,14 @@ div#status-container > div.status {
   max-width: 240px;
 }
 
+div#status-container > div.status:first-of-type {
+  margin-left: auto;
+}
+
+div#status-container > div.divider:nth-last-of-type(2) {
+  margin-left: auto;
+}
+
 div#status-container > div.status > div.profile-image {
   flex: none;
   background-clip: content-box,border-box;
@@ -290,6 +313,76 @@ div#status-container > div.status > div.user-count > div {
 div#status-container > div.divider {
   width: 2px;
   height: 16px;
+  background-color: white;
+  opacity: 0.1;
+}
+
+div#status-container > div.spacer {
+  flex: 1;
+  max-width: 0;
+}
+
+div#menu-button {
+  height: 40px;
+}
+
+div#menu-button > button {
+  height: 100%;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+}
+
+div#menu-button > button:hover,
+div#menu-button > button.active {
+  background-color: rgba(255, 255, 255, 0.125);
+}
+
+div#menu-button > button > svg {
+  padding: 8px 0;
+}
+
+div#menu-container {
+  background-color: rgb(31, 31, 35);
+  box-shadow: inset 0 1px 1px 0 hsla(0, 0%, 100%, 0.1), 0 0 1px 0 rgba(0, 0, 0, 0.7), 0 8px 20px 0 rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 8px;
+}
+
+div#menu-container > div.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+div#menu-container > div.menu-list > a.menu-item {
+  padding: 8px;
+  line-height: 1.5em;
+  color: white;
+  text-decoration: none;
+}
+
+div#menu-container > div.menu-list > a.menu-item.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+div#menu-container > div.menu-list > a.menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.125);
+}
+
+div#menu-container > div.menu-list > a.menu-item > svg {
+  height: 1em;
+  padding: 0.25em 0.5em 0.25em 0;
+  vertical-align: top;
+}
+
+div#menu-container > div.menu-list > div.divider {
+  width: 100%;
+  height: 2px;
   background-color: white;
   opacity: 0.1;
 }

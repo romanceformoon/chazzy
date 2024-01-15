@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Channel } from './types';
 
-export default function useChannel(channelId: string) {
+export default function useChannel(channelId: string | undefined) {
   const [channel, setChannel] = useState<Channel>(undefined);
 
   useEffect(() => {
+    if (channelId == null) {
+      return;
+    }
     void (async () => {
       await fetch(
         // Use proxy API backend
