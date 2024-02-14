@@ -29,7 +29,10 @@ export default function useChatList(
   const { accessToken: accessToken } = useAccessToken(chatChannelId);
 
   const convertChat = useCallback((chzzkChat: ChzzkChat): { chat: Chat; payAmount: number | undefined } => {
-    const profile = JSON.parse(chzzkChat.profile) as Profile;
+    const profile = (JSON.parse(chzzkChat.profile) ?? {
+      nickname: '익명의 후원자',
+      userIdHash: 'anonymous',
+    }) as Profile;
     const extras = JSON.parse(chzzkChat.extras) as Extras;
     const nickname = profile.nickname;
     const badge = profile.badge?.imageUrl;
