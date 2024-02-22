@@ -15,5 +15,5 @@ module.exports = {
       },
     ],
   },
-  ignorePatterns: ['.eslintrc.cjs'],
+  ignorePatterns: ['.eslintrc.cjs', 'next.config.cjs'],
 };

@@ -10,7 +10,7 @@ export default function useAccessToken(chatChannelId?: string) {
     void (async () => {
       await fetch(
         // Use proxy API backend
-        `https://comm-api.game.naver.com.proxy.aioo.ooo/nng_main/v1/chats/access-token?channelId=${chatChannelId}&chatType=STREAMING`,
+        `/comm-api/nng_main/v1/chats/access-token?channelId=${chatChannelId}&chatType=STREAMING`,
       )
         .then(
           (response) =>

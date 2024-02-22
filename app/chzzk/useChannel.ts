@@ -11,7 +11,7 @@ export default function useChannel(channelId: string | undefined) {
     void (async () => {
       await fetch(
         // Use proxy API backend
-        `https://api.chzzk.naver.com.proxy.aioo.ooo/service/v1/channels/${channelId}`,
+        `/n-api/service/v1/channels/${channelId}`,
       )
         .then(
           (response) =>

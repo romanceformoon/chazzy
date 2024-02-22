@@ -11,7 +11,7 @@ export default function useLiveStatus(channelId: string | undefined) {
     const fn = async () => {
       await fetch(
         // Use proxy API backend
-        `https://api.chzzk.naver.com.proxy.aioo.ooo/polling/v2/channels/${channelId}/live-status`,
+        `/n-api/polling/v2/channels/${channelId}/live-status`,
       )
         .then(
           (response) =>
