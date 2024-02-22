@@ -7,10 +7,8 @@ import useChzzkChannel from '../chzzk/useChannel';
 import useChzzkChatList from '../chzzk/useChatList';
 import useLiveStatus from '../chzzk/useLiveStatus';
 import ChatRow from './ChatRow';
-import ChazzyMenu from './ChazzyMenu';
 import CheeseChatRow from './CheeseChatRow';
 import EmptyCheeseChatRow from './EmptyCheeseChatRow';
-import Status from './Status';
 import './styles.css';
 
 export interface ChazzyProps {
@@ -163,22 +161,6 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
             )}
           </div>
         )}
-      </div>
-      <div id="status-container">
-        {chzzkChannelId != null && chzzkChannel != null && (
-          <>
-            <Status
-              provider="chzzk"
-              channelName={chzzkChannel.channelName}
-              channelImageUrl={chzzkChannel.channelImageUrl}
-              concurrentUserCount={chzzkLiveStatus?.concurrentUserCount}
-              liveCategoryValue={chzzkLiveStatus?.liveCategoryValue}
-              isLive={chzzkLiveStatus?.status === 'OPEN'}
-            />
-            <div className="divider" />
-          </>
-        )}
-        <ChazzyMenu />
       </div>
     </div>
   );

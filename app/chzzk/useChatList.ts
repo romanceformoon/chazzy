@@ -1,5 +1,4 @@
 import useAccessToken from '@/app/chzzk/useAccessToken';
-import { captureException, setContext } from '@sentry/nextjs';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Chat, CheeseChat, ClearMessage, MessagePart, TextMessagePart } from '../chat/types';
 import { nicknameColors } from './constants';
@@ -56,7 +55,6 @@ export default function useChatList(
     const synth = window.speechSynthesis;
 
     if (isProcessing) {
-      console.log(textToRead);
       console.error('speechSynthesis.speaking');
       return;
     }
@@ -67,8 +65,8 @@ export default function useChatList(
       const utterThis = new SpeechSynthesisUtterance(textToRead);
 
       utterThis.onend = function () {};
-      utterThis.onerror = function () {
-        console.error('SpeechSynthesisUtterance.onerror');
+      utterThis.onerror = function (e) {
+        console.error(e, 'SpeechSynthesisUtterance.onerror');
       };
       utterThis.voice = voices[16];
       utterThis.pitch = pitch;
@@ -232,8 +230,7 @@ export default function useChatList(
                 try {
                   chat = convertChat(chzzkChat);
                 } catch (e: unknown) {
-                  setContext('WebSocket Message', json);
-                  captureException(e);
+                  console.error('WebSocket Message', json, e);
                 }
                 return chat;
               })
