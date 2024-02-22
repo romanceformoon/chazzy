@@ -1,17 +1,11 @@
 'use client';
 
 import { CSSProperties, ReactElement, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import useAfreecatvStation from '../afreecatv/useStation';
-import useAfreecatvChatList from '../afreecatv/useChatList';
-import useAfreecatvChannel from '../afreecatv/useChannel';
 import { Chat, ClearMessage } from '../chat/types';
 import useMergedList from '../chat/useMergedList';
-import useChzzkChatList from '../chzzk/useChatList';
 import useChzzkChannel from '../chzzk/useChannel';
+import useChzzkChatList from '../chzzk/useChatList';
 import useLiveStatus from '../chzzk/useLiveStatus';
-import useTwitchChatList from '../twitch/useChatList';
-import useTwitchUser from '../twitch/useUser';
-import useStream from '../twitch/useStream';
 import ChatRow from './ChatRow';
 import ChazzyMenu from './ChazzyMenu';
 import CheeseChatRow from './CheeseChatRow';
@@ -20,13 +14,11 @@ import Status from './Status';
 import './styles.css';
 
 export interface ChazzyProps {
-  afreecatvChannelId: string | undefined;
   chzzkChannelId: string | undefined;
-  twitchChannelId: string | undefined;
 }
 
 export default function Chazzy(props: ChazzyProps): ReactElement {
-  const { afreecatvChannelId, chzzkChannelId, twitchChannelId } = props;
+  const { chzzkChannelId } = props;
 
   const isChatAutoScrollEnabledRef = useRef<boolean>(true);
   const chatScrollRef = useRef<HTMLDivElement>(null);
@@ -36,15 +28,6 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
 
   const { channel: chzzkChannel } = useChzzkChannel(chzzkChannelId);
   const { liveStatus: chzzkLiveStatus } = useLiveStatus(chzzkChannelId);
-
-  const { user: twitchUser } = useTwitchUser(twitchChannelId);
-  const { stream: twitchStream } = useStream(twitchUser?.id);
-
-  const { station: afreecatvStation } = useAfreecatvStation(afreecatvChannelId);
-  const { channel: afreecatvChannel } = useAfreecatvChannel(
-    afreecatvChannelId,
-    afreecatvStation?.broad != null ? `${afreecatvStation?.broad.broad_no}` : undefined,
-  );
 
   const handleClearChzzkMessage = useCallback((clearMessage: ClearMessage) => {
     setChatList((prevChatList) => {
@@ -88,52 +71,12 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
     });
   }, []);
 
-  const handleClearTwitchMessage = useCallback((clearMessage: ClearMessage) => {
-    const findFn = ({ uid, userId }: Chat) =>
-      clearMessage.type === 'message'
-        ? clearMessage.method.type === 'twitch' && clearMessage.method.uid === uid
-        : clearMessage.userId === userId;
-    setChatList((prevChatList) => {
-      let isChanged = false;
-      const newChatList = prevChatList.map((chat): Chat => {
-        if (findFn(chat)) {
-          isChanged = true;
-          return {
-            ...chat,
-            isItalic: true,
-            deletionReason: '매니저에 의해 메시지가 삭제됨',
-          };
-        }
-        return chat;
-      });
-      return isChanged ? newChatList : prevChatList;
-    });
-    pendingTwitchChatListRef.current = pendingTwitchChatListRef.current.map((chat) =>
-      findFn(chat)
-        ? {
-            ...chat,
-            isItalic: true,
-            deletionReason: '매니저에 의해 메시지가 삭제됨',
-          }
-        : chat,
-    );
-  }, []);
-
-  const { pendingChatListRef: pendingAfreecatvChatListRef } = useAfreecatvChatList(afreecatvChannel);
   const { pendingChatListRef: pendingChzzkChatListRef, pendingCheeseChatListRef } = useChzzkChatList(
     chzzkLiveStatus?.chatChannelId,
     handleClearChzzkMessage,
   );
-  const { pendingChatListRef: pendingTwitchChatListRef } = useTwitchChatList(
-    twitchChannelId,
-    twitchUser?.id,
-    handleClearTwitchMessage,
-  );
 
-  const pendingChatListRefs = useMemo(
-    () => [pendingAfreecatvChatListRef, pendingChzzkChatListRef, pendingTwitchChatListRef],
-    [pendingAfreecatvChatListRef, pendingChzzkChatListRef, pendingTwitchChatListRef],
-  );
+  const pendingChatListRefs = useMemo(() => [pendingChzzkChatListRef], [pendingChzzkChatListRef]);
 
   const pendingCheeseChatListRefs = useMemo(() => [pendingCheeseChatListRef], [pendingCheeseChatListRef]);
 
@@ -231,32 +174,6 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
               concurrentUserCount={chzzkLiveStatus?.concurrentUserCount}
               liveCategoryValue={chzzkLiveStatus?.liveCategoryValue}
               isLive={chzzkLiveStatus?.status === 'OPEN'}
-            />
-            <div className="divider" />
-          </>
-        )}
-        {twitchChannelId != null && twitchUser != null && (
-          <>
-            <Status
-              provider="twitch"
-              channelName={twitchUser.display_name}
-              channelImageUrl={twitchUser.profile_image_url}
-              concurrentUserCount={twitchStream?.viewer_count}
-              liveCategoryValue={twitchStream?.game_name}
-              isLive={twitchStream != null}
-            />
-            <div className="divider" />
-          </>
-        )}
-        {afreecatvChannelId != null && afreecatvStation != null && (
-          <>
-            <Status
-              provider="afreecatv"
-              channelName={afreecatvStation.station.user_nick}
-              channelImageUrl={afreecatvStation.profile_image}
-              concurrentUserCount={afreecatvStation.broad?.current_sum_viewer}
-              liveCategoryValue={afreecatvStation.broad?.broad_title}
-              isLive={afreecatvStation.broad != null}
             />
             <div className="divider" />
           </>

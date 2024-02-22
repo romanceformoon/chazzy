@@ -1,4 +1,4 @@
-import { memo, ReactElement, useMemo, useState } from 'react';
+import MoreIcon from '@/app/[channelId]/MoreIcon';
 import {
   autoUpdate,
   FloatingPortal,
@@ -8,8 +8,7 @@ import {
   useFloating,
   useInteractions,
 } from '@floating-ui/react';
-import MoreIcon from '@/app/[channelId]/MoreIcon';
-import DiscordIcon from '@/app/[channelId]/DiscordIcon';
+import { memo, ReactElement, useMemo, useState } from 'react';
 
 function ChazzyMenu(): ReactElement {
   const [isMenuOpened, setMenuOpened] = useState<boolean>(false);
@@ -28,9 +27,8 @@ function ChazzyMenu(): ReactElement {
     () => (
       <div id="menu-container" ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
         <div className="menu-list">
-          <a className="menu-item" href="https://discord.gg/ExYacWuCyP" target="_blank">
-            <DiscordIcon />
-            Chazzy 문의 채널
+          <a className="menu-item" href="https://github.com/AiOO/chazzy" target="_blank">
+            Chazzy
           </a>
         </div>
       </div>

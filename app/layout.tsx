@@ -5,7 +5,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ko">
       <head>
-        <title>Chazzy</title>
+        <title>Chazzy for TTS</title>
       </head>
       <body style={{ margin: 0 }}>
         {children}

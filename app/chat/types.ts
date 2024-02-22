@@ -37,14 +37,9 @@ interface ClearByChzzkMessageMethod {
   userId: string;
 }
 
-interface ClearTwitchMessageMethod {
-  type: 'twitch';
-  uid: string;
-}
-
 interface ClearSpecificMessage {
   type: 'message';
-  method: ClearByChzzkMessageMethod | ClearTwitchMessageMethod;
+  method: ClearByChzzkMessageMethod;
 }
 
 interface ClearUserMessages {

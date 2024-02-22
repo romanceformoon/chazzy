@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import useAccessToken from '@/app/chzzk/useAccessToken';
 import { captureException, setContext } from '@sentry/nextjs';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Chat, CheeseChat, ClearMessage, MessagePart, TextMessagePart } from '../chat/types';
 import { nicknameColors } from './constants';
-import { Chat as ChzzkChat, ChatCmd, Extras, Message, MessageTypeCode, Profile } from './types';
-import useAccessToken from '@/app/chzzk/useAccessToken';
+import { ChatCmd, Chat as ChzzkChat, Extras, Message, MessageTypeCode, Profile } from './types';
+import { useTaskQueue } from './useTaskQueue';
 
 const INTERNAL_MAX_LENGTH = 10000;
 
@@ -20,6 +21,8 @@ export default function useChatList(
   chatChannelId: string | undefined,
   onClearMessage?: (clearMessage: ClearMessage) => void,
 ) {
+  const { isProcessing, addTask } = useTaskQueue({ shouldProcess: true });
+
   const isUnloadingRef = useRef<boolean>(false);
   const isRefreshingRef = useRef<boolean>(false);
   const pendingChatListRef = useRef<Chat[]>([]);
@@ -27,6 +30,54 @@ export default function useChatList(
   const [webSocketBuster, setWebSocketBuster] = useState<number>(0);
 
   const { accessToken: accessToken } = useAccessToken(chatChannelId);
+
+  const pitch = 1;
+  const rate = 1;
+
+  const getPopulateVoiceList = (synth: SpeechSynthesis) => {
+    try {
+      const voices = synth.getVoices().sort(function (a, b) {
+        const aname = a.name.toUpperCase();
+        const bname = b.name.toUpperCase();
+        if (aname < bname) return -1;
+        else if (aname === bname) return 0;
+        else return +1;
+      });
+
+      return voices;
+    } catch (error) {
+      throw new Error('Failure retrieving voices');
+    }
+  };
+
+  const speak = (textToRead: string) => {
+    if (!window.speechSynthesis) return;
+
+    const synth = window.speechSynthesis;
+
+    if (isProcessing) {
+      console.log(textToRead);
+      console.error('speechSynthesis.speaking');
+      return;
+    }
+
+    const voices = getPopulateVoiceList(synth);
+
+    if (textToRead !== '') {
+      const utterThis = new SpeechSynthesisUtterance(textToRead);
+
+      utterThis.onend = function () {};
+      utterThis.onerror = function () {
+        console.error('SpeechSynthesisUtterance.onerror');
+      };
+      utterThis.voice = voices[16];
+      utterThis.pitch = pitch;
+      utterThis.rate = rate;
+      synth.speak(utterThis);
+    }
+
+    return;
+  };
 
   const convertChat = useCallback((chzzkChat: ChzzkChat): { chat: Chat; payAmount: number | undefined } => {
     const profile = (JSON.parse(chzzkChat.profile) ?? {
@@ -51,6 +102,8 @@ export default function useChatList(
     const emojis = typeof extras.emojis !== 'string' ? extras.emojis : {};
     const message = chzzkChat.msg || '';
     const match = message.match(emojiRegex);
+
+    addTask(() => speak(message));
 
     return {
       chat: {
