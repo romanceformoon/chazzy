@@ -30,9 +30,6 @@ export default function useChatList(
 
   const { accessToken: accessToken } = useAccessToken(chatChannelId);
 
-  const pitch = 1;
-  const rate = 1;
-
   const getPopulateVoiceList = (synth: SpeechSynthesis) => {
     try {
       const voices = synth.getVoices().sort(function (a, b) {
@@ -49,7 +46,10 @@ export default function useChatList(
     }
   };
 
-  const speak = (textToRead: string) => {
+  const pitchStats = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3];
+  const speedStats = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5];
+
+  const speak = (textToRead: string, nickname: string) => {
     if (!window.speechSynthesis) return;
 
     const synth = window.speechSynthesis;
@@ -61,6 +61,8 @@ export default function useChatList(
 
     const voices = getPopulateVoiceList(synth);
 
+    const koreanVoice = voices.find((_) => _.lang.includes('ko'));
+
     if (textToRead !== '') {
       const utterThis = new SpeechSynthesisUtterance(textToRead);
 
@@ -68,7 +70,11 @@ export default function useChatList(
       utterThis.onerror = function (e) {
         console.error(e, 'SpeechSynthesisUtterance.onerror');
       };
-      utterThis.voice = voices[16];
+      utterThis.voice = koreanVoice;
+
+      const pitch = pitchStats[nickname.length % pitchStats.length];
+      const rate = speedStats[nickname.length % speedStats.length];
+
       utterThis.pitch = pitch;
       utterThis.rate = rate;
       synth.speak(utterThis);
@@ -101,7 +107,7 @@ export default function useChatList(
     const message = chzzkChat.msg || '';
     const match = message.match(emojiRegex);
 
-    addTask(() => speak(message));
+    addTask(() => speak(message, nickname));
 
     return {
       chat: {

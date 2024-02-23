@@ -29,45 +29,45 @@ export default function Chazzy(props: ChazzyProps): ReactElement {
   const { liveStatus: chzzkLiveStatus } = useLiveStatus(chzzkChannelId);
 
   const handleClearChzzkMessage = useCallback((clearMessage: ClearMessage) => {
-    setChatList((prevChatList) => {
-      const findFn = ({ userId }: Chat) =>
-        clearMessage.type === 'message'
-          ? clearMessage.method.type === 'chzzk' && clearMessage.method.userId === userId
-          : false;
-      const lastIndexOnPendingChatList = pendingChzzkChatListRef.current.findLastIndex(findFn);
-      const lastChatOnPendingChatList = pendingChzzkChatListRef.current[lastIndexOnPendingChatList];
-      const lastIndexOnChatList = prevChatList.findLastIndex(findFn);
-      const lastChatOnChatList = prevChatList[lastIndexOnChatList];
-      const newChatList = [...prevChatList];
-      if (lastChatOnPendingChatList == null && lastChatOnChatList != null) {
-        newChatList.splice(lastIndexOnChatList, 1, {
-          ...lastChatOnChatList,
-          deletionReason: '클린봇이 부적절한 표현을 감지했습니다.',
-        });
-        return newChatList;
-      } else if (lastChatOnPendingChatList != null && lastChatOnChatList == null) {
-        pendingChzzkChatListRef.current.splice(lastIndexOnPendingChatList, 1, {
-          ...lastChatOnPendingChatList,
-          deletionReason: '클린봇이 부적절한 표현을 감지했습니다.',
-        });
-        return prevChatList;
-      } else if (lastChatOnPendingChatList != null && lastChatOnChatList != null) {
-        if (lastChatOnChatList.time > lastChatOnPendingChatList.time) {
-          newChatList.splice(lastIndexOnChatList, 1, {
-            ...lastChatOnChatList,
-            deletionReason: '클린봇이 부적절한 표현을 감지했습니다.',
-          });
-          return newChatList;
-        } else {
-          pendingChzzkChatListRef.current.splice(lastIndexOnPendingChatList, 1, {
-            ...lastChatOnPendingChatList,
-            deletionReason: '클린봇이 부적절한 표현을 감지했습니다.',
-          });
-          return prevChatList;
-        }
-      }
-      return prevChatList;
-    });
+    // setChatList((prevChatList) => {
+    //   const findFn = ({ userId }: Chat) =>
+    //     clearMessage.type === 'message'
+    //       ? clearMessage.method.type === 'chzzk' && clearMessage.method.userId === userId
+    //       : false;
+    //   const lastIndexOnPendingChatList = pendingChzzkChatListRef.current.findLastIndex(findFn);
+    //   const lastChatOnPendingChatList = pendingChzzkChatListRef.current[lastIndexOnPendingChatList];
+    //   const lastIndexOnChatList = prevChatList.findLastIndex(findFn);
+    //   const lastChatOnChatList = prevChatList[lastIndexOnChatList];
+    //   const newChatList = [...prevChatList];
+    //   if (lastChatOnPendingChatList == null && lastChatOnChatList != null) {
+    //     newChatList.splice(lastIndexOnChatList, 1, {
+    //       ...lastChatOnChatList,
+    //       deletionReason: '클린봇이 부적절한 표현을 감지했습니다.',
+    //     });
+    //     return newChatList;
+    //   } else if (lastChatOnPendingChatList != null && lastChatOnChatList == null) {
+    //     pendingChzzkChatListRef.current.splice(lastIndexOnPendingChatList, 1, {
+    //       ...lastChatOnPendingChatList,
+    //       deletionReason: '클린봇이 부적절한 표현을 감지했습니다.',
+    //     });
+    //     return prevChatList;
+    //   } else if (lastChatOnPendingChatList != null && lastChatOnChatList != null) {
+    //     if (lastChatOnChatList.time > lastChatOnPendingChatList.time) {
+    //       newChatList.splice(lastIndexOnChatList, 1, {
+    //         ...lastChatOnChatList,
+    //         deletionReason: '클린봇이 부적절한 표현을 감지했습니다.',
+    //       });
+    //       return newChatList;
+    //     } else {
+    //       pendingChzzkChatListRef.current.splice(lastIndexOnPendingChatList, 1, {
+    //         ...lastChatOnPendingChatList,
+    //         deletionReason: '클린봇이 부적절한 표현을 감지했습니다.',
+    //       });
+    //       return prevChatList;
+    //     }
+    //   }
+    //   return prevChatList;
+    // });
   }, []);
 
   const { pendingChatListRef: pendingChzzkChatListRef, pendingCheeseChatListRef } = useChzzkChatList(
