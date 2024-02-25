@@ -46,10 +46,35 @@ export default function useChatList(
     }
   };
 
-  const pitchStats = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3];
+  const pitchStats = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3];
   const speedStats = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5];
 
+  const filterMessage = (textToRead: string) => {
+    // 링크는 "링크"로 읽음
+    // ? [ ] { } ( )는 읽지 않음
+    // &~~~;와 같은 엔티티 문자는 읽지 않음
+    // 이모지는 읽지 않음
+    // ?는 한번만 읽음
+    // 물결표는 한번만 읽음
+    // ㅋ이 3번 이상 있으면 3번만 읽음
+    // 이외 모든 글자가 5번 이상 연속으로 있으면 삭제(읽지 않음)
+    const message = textToRead
+      .replace(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)/g, '링크')
+      .replace(/[\[\](){}]/g, '')
+      .replace(/&(.*?);/g, '')
+      .replace(/\ud83d[\ude00-\ude4f]/g, '')
+      .replace(/\?{2,}/g, '?')
+      .replace(/~{2,}/g, '~')
+      .replace(/ㅋ{3,}/g, 'ㅋㅋㅋ')
+      .replace(/(.)\1{5,}/g, '');
+
+    return message;
+  };
+
   const speak = (textToRead: string, nickname: string) => {
+    const message = filterMessage(textToRead);
+
+    if (message.length > 120) return;
     if (!window.speechSynthesis) return;
 
     const synth = window.speechSynthesis;
@@ -63,8 +88,8 @@ export default function useChatList(
 
     const koreanVoice = voices.find((_) => _.lang.includes('ko'));
 
-    if (textToRead !== '') {
-      const utterThis = new SpeechSynthesisUtterance(textToRead);
+    if (message !== '') {
+      const utterThis = new SpeechSynthesisUtterance(message);
 
       utterThis.onend = function () {};
       utterThis.onerror = function (e) {
@@ -77,6 +102,7 @@ export default function useChatList(
 
       utterThis.pitch = pitch;
       utterThis.rate = rate;
+
       synth.speak(utterThis);
     }
 
