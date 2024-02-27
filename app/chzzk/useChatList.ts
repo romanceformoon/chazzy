@@ -59,6 +59,7 @@ export default function useChatList(
     // ㅋ이 3번 이상 있으면 3번만 읽음
     // 이외 모든 글자가 5번 이상 연속으로 있으면 삭제(읽지 않음)
     const message = textToRead
+      .replace(/{:([a-zA-Z0-9_]+):}/g, '')
       .replace(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)/g, '링크')
       .replace(/[\[\](){}]/g, '')
       .replace(/&(.*?);/g, '')
@@ -74,7 +75,7 @@ export default function useChatList(
   const speak = (textToRead: string, nickname: string) => {
     const message = filterMessage(textToRead);
 
-    if (message.length > 120) return;
+    if (message.length > 40) return;
     if (!window.speechSynthesis) return;
 
     const synth = window.speechSynthesis;
