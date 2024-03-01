@@ -47,7 +47,7 @@ export default function useChatList(
   };
 
   const pitchStats = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3];
-  const speedStats = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5];
+  const speedStats = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4];
 
   const filterMessage = (textToRead: string) => {
     // 링크는 "링크"로 읽음
@@ -85,9 +85,20 @@ export default function useChatList(
       return;
     }
 
+    const check = {
+      ko: /[ㄱ-ㅎㅏ-ㅣ가-힣]/,
+      jp: /[\u3040-\u30ff\u31f0-\u31ff]/,
+      cn: /\p{Script=Han}/u,
+    };
+
+    let lang = 'en-US';
+    if (check['ko'].test(message)) lang = 'ko-KR';
+    else if (check['jp'].test(message)) lang = 'ja-JP';
+    else if (check['cn'].test(message)) lang = 'zh-CN';
+
     const voices = getPopulateVoiceList(synth);
 
-    const koreanVoice = voices.find((_) => _.lang.includes('ko'));
+    let selectedVoice = voices.find((_) => _.lang.includes(lang));
 
     if (message !== '') {
       const utterThis = new SpeechSynthesisUtterance(message);
@@ -96,7 +107,7 @@ export default function useChatList(
       utterThis.onerror = function (e) {
         console.error(e, 'SpeechSynthesisUtterance.onerror');
       };
-      utterThis.voice = koreanVoice;
+      utterThis.voice = selectedVoice;
 
       const pitch = pitchStats[nickname.length % pitchStats.length];
       const rate = speedStats[nickname.length % speedStats.length];
