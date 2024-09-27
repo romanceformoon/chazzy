@@ -46,7 +46,7 @@ export default function useChatList(
     }
   };
 
-  const pitchStats = [0.9, 1.0, 1.1, 1.2];
+  const pitchStats = [0.8, 0.9, 1.0, 1.1];
   const speedStats = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2];
 
   const filterMessage = (textToRead: string) => {
